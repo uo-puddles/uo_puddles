@@ -96,3 +96,30 @@ def cm_f1(confusion_dictionary: dict) -> float:
   f1 = 2/(recall_div+precision_div) if (recall_div+precision_div) != 0 else 0  #heuristic
   
   return f1
+
+#************************************** WEEK 2
+
+def cosine_similarity(vect1:list ,vect2:list) -> float:
+  assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
+  assert isinstance(vect2, list), f'vect2 is not a list but a {type(vect2)}'
+  assert len(vect1) == len(vect2), f"Mismatching length for vectors: {len(vect1)} and {len(vect2)}"
+  
+  sumxx, sumxy, sumyy = 0, 0, 0
+  for i in range(len(vect1)):
+      x = vect1[i]; y = vect2[i]
+      sumxx += x*x
+      sumyy += y*y
+      sumxy += x*y
+      denom = sumxx**.5 * sumyy**.5  #or (sumxx * sumyy)**.5
+  #have to invert to order on smallest
+
+  return sumxy/denom if denom > 0 else 0.0
+
+def inverse_cosine_similarity(vect1:list ,vect2:list) -> float:
+  assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
+  assert isinstance(vect2, list), f'vect2 is not a list but a {type(vect2)}'
+  assert len(vect1) == len(vect2), f"Mismatching length for vectors: {len(vect1)} and {len(vect2)}"
+
+  normal_result = cosine_similarity(vect1, vect2)
+  return 1.0 - normal_result
+
