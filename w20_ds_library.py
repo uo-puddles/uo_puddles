@@ -122,3 +122,58 @@ def inverse_cosine_similarity(vect1:list ,vect2:list) -> float:
 
   normal_result = cosine_similarity(vect1, vect2)
   return 1.0 - normal_result
+
+
+#***************************************** WEEK 3
+
+def bayes(evidence:set, evidence_bag:dict, training_table:dframe) -> tuple:
+  assert isinstance(evidence, set), f'evidence not a set but instead a {type(evidence)}'
+  assert isinstance(evidence_bag, dict), f'evidence_bag not a dict but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'label' in training_table, f'label column is not found in training_table'
+  assert training_table.label.dtype == int, f"label must be an int column (possibly wrangled); instead it has type({training_table.label.dtype})"
+
+  label_list = training_table.label.to_list()
+  n_classes = len(set(label_list))
+  assert len(list(evidence_bag.values())[0]) == n_classes, f'Values in evidence_bag do not match number of unique classes ({n_classes}) in labels.'
+
+  counts = []
+  probs = []
+  for i in range(n_classes):
+    ct = label_list.count(i)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for a_class in range(n_classes):
+    numerator = 1
+    for ei in evidence:
+      all_values = evidence_bag[ei]
+      the_value = (all_values[a_class]/counts[a_class])
+      numerator *= the_value
+    results.append(numerator * probs[a_class])
+
+  return tuple(results)
+
+def char_set_builder(text:str) -> set:
+  return set(text).intersection(set('abcdefghijklmnopqrstuvwxyz!#'))
+
+def bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe, parser:Callable) -> list:
+  assert isinstance(testing_table, pd.core.frame.DataFrame), f'test_table not a dataframe but instead a {type(testing_table)}'
+  assert isinstance(evidence_bag, dict), f'evidence_bag not a dict but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert callable(parser), f'parser not a function but instead a {type(parser)}'
+  assert 'label' in training_table, f'label column is not found in training_table'
+  assert training_table.label.dtype == int, f"label must be an int column (possibly wrangled); instead it has type({training_table.label.dtype})"
+  assert 'text' in testing_table, f'text column is not found in testing_table'
+
+
+  result_list = []
+  for i,target_row in testing_table.iterrows():
+    raw_text = target_row['text']
+    e_set = parser(raw_text)
+    p_tuple = bayes(e_set, evidence_bag, training_table)
+    result_list.append(p_tuple)
+  return result_list
