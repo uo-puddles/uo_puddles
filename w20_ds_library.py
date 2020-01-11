@@ -158,7 +158,8 @@ def bayes(evidence:set, evidence_bag:dict, training_table:dframe) -> tuple:
   return tuple(results)
 
 def char_set_builder(text:str) -> set:
-  return set(text).intersection(set('abcdefghijklmnopqrstuvwxyz!#'))
+  the28 = set(text).intersection(set('abcdefghijklmnopqrstuvwxyz!#'))
+  return list(the28)
 
 def bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe, parser:Callable) -> list:
   assert isinstance(testing_table, pd.core.frame.DataFrame), f'test_table not a dataframe but instead a {type(testing_table)}'
@@ -173,7 +174,7 @@ def bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe,
   result_list = []
   for i,target_row in testing_table.iterrows():
     raw_text = target_row['text']
-    e_set = parser(raw_text)
+    e_set = set(parser(raw_text))
     p_tuple = bayes(e_set, evidence_bag, training_table)
     result_list.append(p_tuple)
   return result_list
