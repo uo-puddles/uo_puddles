@@ -278,3 +278,5 @@ def curry_x(old_func,x):
 
 
 word_parser = curry_x(get_clean_words, swords)
+
+def foo(): return 'foo'
