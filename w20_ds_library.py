@@ -157,7 +157,7 @@ def bayes(evidence:set, evidence_bag:dict, training_table:dframe) -> tuple:
 
   return tuple(results)
 
-def char_set_builder(text:str) -> set:
+def char_set_builder(text:str) -> list:
   the28 = set(text).intersection(set('abcdefghijklmnopqrstuvwxyz!#'))
   return list(the28)
 
