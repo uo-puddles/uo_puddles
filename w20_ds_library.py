@@ -189,7 +189,7 @@ swords = stopwords.words('english')
 swords.sort()
 
 import re
-def get_clean_words(stopwords:list, raw_sentence:str) -> set:
+def get_clean_words(stopwords:list, raw_sentence:str) -> list:
   assert isinstance(stopwords, list), f'stopwords must be a list but saw a {type(stopwords)}'
   assert all([isinstance(word, str) for word in stopwords]), f'expecting stopwords to be a list of strings'
   assert isinstance(raw_sentence, str), f'raw_sentence must be a list but saw a {type(raw_sentence)}'
@@ -199,7 +199,7 @@ def get_clean_words(stopwords:list, raw_sentence:str) -> set:
     sentence = re.sub(r"\b"+word+r"\b", '', sentence)  #replace stopword with empty
 
   cleaned = re.findall("\w+", sentence)  #now find the words
-  return set(cleaned)
+  return cleaned
 
 def build_word_bag(stopwords:list, training_table:dframe) -> dict:
   assert isinstance(stopwords, list), f'stopwords must be a list but saw a {type(stopwords)}'
@@ -209,7 +209,7 @@ def build_word_bag(stopwords:list, training_table:dframe) -> dict:
   starters = [[1,0,0], [0,1,0], [0,0,1]]
   for i,row in training_table.iterrows():
     raw_text = row['text']
-    words = get_clean_words(stopwords, raw_text)
+    words = set(get_clean_words(stopwords, raw_text))
     label =  row['label']
     for word in words:
         if word in bow:
@@ -264,7 +264,7 @@ def robust_bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:
   result_list = []
   for i,target_row in testing_table.iterrows():
     raw_text = target_row['text']
-    e_set = parser(raw_text)
+    e_set = set(parser(raw_text))
     p_tuple = robust_bayes(e_set, evidence_bag, training_table)
     result_list.append(p_tuple)
   return result_list
