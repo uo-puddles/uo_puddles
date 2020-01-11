@@ -181,3 +181,100 @@ def bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe,
 
 #***************************************** WEEK 4
 
+import nltk
+nltk.download('stopwords')
+from nltk.corpus import stopwords
+
+swords = stopwords.words('english')
+swords.sort()
+
+import re
+def get_clean_words(stopwords:list, raw_sentence:str) -> list:
+  assert isinstance(stopwords, list), f'stopwords must be a list but saw a {type(stopwords)}'
+  assert all([isinstance(word, str) for word in stopwords]), f'expecting stopwords to be a list of strings'
+  assert isinstance(raw_sentence, str), f'raw_sentence must be a list but saw a {type(raw_sentence)}'
+
+  sentence = raw_sentence.lower()
+  for word in stopwords:
+    sentence = re.sub(r"\b"+word+r"\b", '', sentence)  #replace stopword with empty
+
+  cleaned = re.findall("\w+", sentence)  #now find the words
+  return cleaned
+
+def build_word_bag(stopwords:list, training_table:dframe) -> dict:
+  assert isinstance(stopwords, list), f'stopwords must be a list but saw a {type(stopwords)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+
+  bow = {}
+  starters = [[1,0,0], [0,1,0], [0,0,1]]
+  for i,row in training_table.iterrows():
+    raw_text = row['text']
+    words = set(get_clean_words(stopwords, raw_text))
+    label =  row['label']
+    for word in words:
+        if word in bow:
+            bow[word][label] += 1
+        else:
+            bow[word] = list(starters[label])  #need list to get a copy
+  return bow
+
+def robust_bayes(evidence:set, evidence_bag:dict, training_table:dframe, laplace:float=1.0) -> tuple:
+  assert isinstance(evidence, set), f'evidence not a set but instead a {type(evidence)}'
+  assert isinstance(evidence_bag, dict), f'evidence_bag not a dict but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'label' in training_table, f'label column is not found in training_table'
+  assert training_table.label.dtype == int, f"label must be an int column (possibly wrangled); instead it has type({training_table.label.dtype})"
+
+  label_list = training_table.label.to_list()
+  n_classes = len(set(label_list))
+  assert len(list(evidence_bag.values())[0]) == n_classes, f'Values in evidence_bag do not match number of unique classes ({n_classes}) in labels.'
+
+  counts = []
+  probs = []
+  for i in range(n_classes):
+    ct = label_list.count(i)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for a_class in range(n_classes):
+    numerator = 1
+    for ei in evidence:
+      if ei not in evidence_bag:
+        the_value =  1/(counts[a_class] + len(training_table) + laplace)
+      else:
+        all_values = evidence_bag[ei]
+        the_value = ((all_values[a_class]+laplace)/(counts[a_class] + len(training_table) + laplace)) 
+      numerator *= the_value
+    results.append(max(numerator * probs[a_class], 2.2250738585072014e-308))
+
+  return tuple(results)
+
+def robust_bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe, parser:Callable) -> list:
+  assert isinstance(testing_table, pd.core.frame.DataFrame), f'test_table not a dataframe but instead a {type(testing_table)}'
+  assert isinstance(evidence_bag, dict), f'evidence_bag not a dict but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert callable(parser), f'parser not a function but instead a {type(parser)}'
+  assert 'label' in training_table, f'label column is not found in training_table'
+  assert training_table.label.dtype == int, f"label must be an int column (possibly wrangled); instead it has type({training_table.label.dtype})"
+  assert 'text' in testing_table, f'text column is not found in testing_table'
+
+  result_list = []
+  for i,target_row in testing_table.iterrows():
+    raw_text = target_row['text']
+    e_set = set(parser(raw_text))
+    p_tuple = robust_bayes(e_set, evidence_bag, training_table)
+    result_list.append(p_tuple)
+  return result_list
+
+def curry_x(old_func,x):
+  #this is the closure. It contains the value of x.
+
+  def inner(y): return old_func(x,y)  #define a new function that uses x from closure and passes in y.
+
+  return inner  #will return a function of 1 argument. But that function will carry the closure with it.
+
+
+word_parser = curry_x(get_clean_words, swords)
