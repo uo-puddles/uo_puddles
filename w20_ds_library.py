@@ -64,7 +64,7 @@ def knn_tester(test_table:dframe, crowd_table:dframe, answer_column:str, k:int, 
   correct = 0
   for i,target_row in test_table.iterrows():
     target_vector = target_row.drop([answer_column], axis=0).tolist()
-    crowd_answer = knn(target_vector, crowd_table, answer_column, k, euclidean_distance)
+    crowd_answer = knn(target_vector, crowd_table, answer_column, k, dfunc)
     real_answer = target_row[answer_column]
     confusion_dictionary[(crowd_answer, real_answer)] += 1
   return confusion_dictionary
