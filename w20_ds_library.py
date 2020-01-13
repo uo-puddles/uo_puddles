@@ -26,12 +26,10 @@ def ordered_distances(target_vector:list, crowd_table:dframe, answer_column:str,
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
   assert answer_column in crowd_table, f'{answer_column} is not a legit column in crowd_table - check case and spelling'
 
-  distance_list = []
-  for i,crow in crowd_table.iterrows():
-    c_vector = crow.drop([answer_column], axis=0).tolist()
-    d = dfunc(target_vector, c_vector)
-    distance_list.append((i,d))
-  return sorted(distance_list, key=lambda pair: pair[1], reverse=False)
+  #your code goes here
+  crowd_data = crowd_table.drop(answer_column, axis=1) #.drop returns modified deep-copy
+  distance_list = [(index, dfunc(target_vector, row.tolist())) for index, row in crowd_data.iterrows()]
+  return sorted(distance_list, key=lambda pair: pair[1])
 
 def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
@@ -52,22 +50,25 @@ def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:
   #Return winner
   return winner
 
-def knn_tester(test_table:dframe, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> float:
+def knn_tester(test_table, crowd_table, answer_column, k, dfunc:Callable) -> dict:
   assert isinstance(test_table, pd.core.frame.DataFrame), f'test_table not a dataframe but instead a {type(test_table)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
   assert isinstance(answer_column, str), f'answer_column not a string but instead a {type(answer_column)}'
   assert answer_column in crowd_table, f'{answer_column} is not a legit column in crowd_table - check case and spelling'
   assert crowd_table[answer_column].isin([0,1]).all(), f"answer_column must be binary"
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
-    
-  confusion_dictionary = {(0,0): 0, (0,1): 0, (1,0): 0, (1,1): 0}
-  correct = 0
-  for i,target_row in test_table.iterrows():
-    target_vector = target_row.drop([answer_column], axis=0).tolist()
-    crowd_answer = knn(target_vector, crowd_table, answer_column, k, dfunc)
-    real_answer = target_row[answer_column]
-    confusion_dictionary[(crowd_answer, real_answer)] += 1
-  return confusion_dictionary
+  
+  #your code here
+  points = {}
+  test_data = test_table.drop(answer_column, axis=1)
+  for i in range(len(test_table.index)):
+    prediction = knn(test_data.iloc[i].tolist(), crowd_table, answer_column, k, dfunc)
+    actual = test_table.iloc[i][answer_column]
+    if((prediction, actual) in points):
+      points[(prediction, actual)] += 1
+    else:
+      points[(prediction, actual)] = 1
+  return points
 
 def cm_accuracy(confusion_dictionary: dict) -> float:
   assert isinstance(confusion_dictionary, dict), f'confusion_dictionary not a dictionary but instead a {type(confusion_dictionary)}'
