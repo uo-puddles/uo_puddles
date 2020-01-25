@@ -244,10 +244,10 @@ def robust_bayes(evidence:set, evidence_bag:dict, training_table:dframe, laplace
     numerator = 1
     for ei in evidence:
       if ei not in evidence_bag:
-        the_value =  1/(counts[a_class] + len(training_table) + laplace)
+        the_value =  1/(counts[a_class] + len(evidence_bag) + laplace)
       else:
         all_values = evidence_bag[ei]
-        the_value = ((all_values[a_class]+laplace)/(counts[a_class] + len(training_table) + laplace)) 
+        the_value = ((all_values[a_class]+laplace)/(counts[a_class] + len(evidence_bag) + laplace)) 
       numerator *= the_value
     results.append(max(numerator * probs[a_class], 2.2250738585072014e-308))
 
