@@ -1,2 +1,2 @@
-# w20_ds_library
-My own class library
+# uo_puddles
+Helpful functions for data science
