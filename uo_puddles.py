@@ -19,7 +19,7 @@ def euclidean_distance(vect1:list ,vect2:list) -> float:
   #could put assert here on result   
   return sum**.5  # I claim that this square root is not needed in K-means - see why?
 
-def ordered_distances(target_vector:list, crowd_table:dframe, answer_column:str, dfunc:Callable) -> list:
+def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_column:str, dfunc=euclidean_distance) -> list:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
   assert isinstance(answer_column, str), f'answer_column not a string but instead a {type(answer_column)}'
@@ -29,6 +29,37 @@ def ordered_distances(target_vector:list, crowd_table:dframe, answer_column:str,
   #your code goes here
   crowd_data = crowd_table.drop(answer_column, axis=1) #.drop returns modified deep-copy
   distance_list = [(index, dfunc(target_vector, row.tolist())) for index, row in crowd_data.iterrows()]
+  return sorted(distance_list, key=lambda pair: pair[1])
+
+def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
+  assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
+  assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
+  assert isinstance(answer_column, str), f'answer_column not a string but instead a {type(answer_column)}'
+  assert answer_column in crowd_table, f'{answer_column} is not a legit column in crowd_table - check case and spelling'
+  assert crowd_table[answer_column].isin([0,1]).all(), f"answer_column must be binary"
+  assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
+
+  #Comute sorted_crowd
+  sorted_crowd = ordered_distances(target_vector, crowd_table, answer_column, dfunc)
+  #Compute top_k
+  top_k = [i for i,d in sorted_crowd[:k]]
+  #Compute opinions
+  opinions = [crowd_table.iloc[i][answer_column] for i in top_k]
+  #Compute winner
+  winner = 1 if opinions.count(1) > opinions.count(0) else 0
+  #Return winner
+  return winner
+
+def ordered_distances_matrix(target_vector:list, crowd_matrix:list,  dfunc=euclidean_distance) -> list:
+  assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
+  assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
+  assert all([isinstance(row, list) for row in crowd_matrix]), f'crowd_matrix not a list of lists'
+  assert all([len(target_vector)==len(row) for row in crowd_matrix]), f'crowd_matrix has varied row lengths'
+  assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
+
+
+  #your code goes here
+  distance_list = [(index, dfunc(target_vector, row)) for index, row in enumerate(crowd_matrix)]
   return sorted(distance_list, key=lambda pair: pair[1])
 
 def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
