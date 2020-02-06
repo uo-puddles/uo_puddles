@@ -50,6 +50,8 @@ def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:
   #Return winner
   return winner
 
+ordered_distances = ordered_distances_table
+
 def ordered_distances_matrix(target_vector:list, crowd_matrix:list,  dfunc=euclidean_distance) -> list:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
