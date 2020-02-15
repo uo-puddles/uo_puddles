@@ -57,3 +57,23 @@ os.system("python -m spacy download en_core_web_md")
 
 import en_core_web_md
 nlp = en_core_web_md.load()
+
+def vec(s:str) -> narray:
+    return nlp.vocab[s].vector
+  
+def sent2vec(s: str) -> narray:
+  sent = nlp(s)  #use spacy's parser
+  return meanv(np.array([w.vector for w in sent]))
+
+def vector_ordered_distances(crowd:list, input_str:str) -> list:
+  assert isinstance(crowd, list)
+  assert all([isinstance(v, numpy.ndarray) for v in crowd])
+
+  dlist = []
+  input_vec = sent2vec(input_str)
+  for i,v in enumerate(crowd):
+    c = fast_cosine(v, input_vec)
+    dlist.append((i,c))
+  return sorted(dlist, key=lambda x: x[1], reverse=True)
+
+
