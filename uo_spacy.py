@@ -48,3 +48,9 @@ def fast_cosine(v1:narray, v2:narray) -> float:
   z = x*y
   if z==0: return 0.0  #check for underflow
   return np.dot(v1, v2)/z
+
+import spacy
+
+import os
+
+os.system("python -m spacy download en_core_web_md")
