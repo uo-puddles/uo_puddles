@@ -51,7 +51,7 @@ def fast_cosine(v1:narray, v2:narray) -> float:
   return np.dot(v1, v2)/z
 
 import spacy
-
+spnlp = TypeVar('spacy.lang.en.English')  #for type hints
 '''
 import os
 
@@ -61,19 +61,19 @@ import en_core_web_md
 nlp = en_core_web_md.load()
 '''
 
-def vec(s:str) -> narray:
+def vec(nlp:spnlp, s:str) -> narray:
     return nlp.vocab[s].vector
   
-def sent2vec(s: str) -> narray:
+def sent2vec(nlp:spnlp, s: str) -> narray:
   sent = nlp(s)  #use spacy's parser
   return meanv(np.array([w.vector for w in sent]))
 
-def vector_ordered_distances(crowd:list, input_str:str) -> list:
+def vector_ordered_distances(nlp:spnlp, crowd:list, input_str:str) -> list:
   assert isinstance(crowd, list)
   assert all([isinstance(v, numpy.ndarray) for v in crowd])
 
   dlist = []
-  input_vec = sent2vec(input_str)
+  input_vec = sent2vec(nlp, input_str)
   for i,v in enumerate(crowd):
     c = fast_cosine(v, input_vec)
     dlist.append((i,c))
