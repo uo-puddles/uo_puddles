@@ -41,9 +41,9 @@ def fast_cosine(v1:narray, v2:narray) -> float:
   assert len(v2.shape) == 1, f"v2 must be a 1d array but instead is {len(v2.shape)}d"
   assert len(v1) == len(v2), f'v1 and v2 must have same length but instead have {len(v1)} and {len(v2)}'
 
-  x = norm(v1)
+  x = np.linalg.norm(v1)
   if x==0: return 0.0
-  y = norm(v2)
+  y = np.linalg.norm(v2)
   if y==0: return 0.0
   z = x*y
   if z==0: return 0.0  #check for underflow
@@ -51,12 +51,14 @@ def fast_cosine(v1:narray, v2:narray) -> float:
 
 import spacy
 
+'''
 import os
 
 os.system("python -m spacy download en_core_web_md")
 
 import en_core_web_md
 nlp = en_core_web_md.load()
+'''
 
 def vec(s:str) -> narray:
     return nlp.vocab[s].vector
