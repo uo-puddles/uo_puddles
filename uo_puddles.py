@@ -31,26 +31,22 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   distance_list = [(index, dfunc(target_vector, row.tolist())) for index, row in crowd_data.iterrows()]
   return sorted(distance_list, key=lambda pair: pair[1])
 
-def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
+#fix this up at some point - hardwired to skip first 2 items in a row
+def knn_winner(target_vector:list, crowd_table:dframe,  k:int, dfunc:Callable) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
-  assert isinstance(answer_column, str), f'answer_column not a string but instead a {type(answer_column)}'
-  assert answer_column in crowd_table, f'{answer_column} is not a legit column in crowd_table - check case and spelling'
-  assert crowd_table[answer_column].isin([0,1]).all(), f"answer_column must be binary"
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
 
-  #Comute sorted_crowd
-  sorted_crowd = ordered_distances(target_vector, crowd_table, answer_column, dfunc)
+  distance_list = [(index, dfunc(target_vector, row.tolist()[2:])) for index, row in crowd_data.iterrows()]
+  ordered_crowd =  sorted(distance_list, key=lambda pair: pair[1])
   #Compute top_k
   top_k = [i for i,d in sorted_crowd[:k]]
   #Compute opinions
-  opinions = [crowd_table.iloc[i][answer_column] for i in top_k]
+  opinions = [crowd_table.iloc[index].tolist()[0])) for index in top_k]
   #Compute winner
   winner = 1 if opinions.count(1) > opinions.count(0) else 0
   #Return winner
   return winner
-
-ordered_distances = ordered_distances_table
 
 def ordered_distances_matrix(target_vector:list, crowd_matrix:list,  dfunc=euclidean_distance) -> list:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
