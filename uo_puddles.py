@@ -42,7 +42,7 @@ def knn_winner(target_vector:list, crowd_table:dframe,  k:int, dfunc:Callable) -
   #Compute top_k
   top_k = [i for i,d in sorted_crowd[:k]]
   #Compute opinions
-  opinions = [crowd_table.iloc[index].tolist()[0])) for index in top_k]
+  opinions = [crowd_table.iloc[index].tolist()[0] for index in top_k]
   #Compute winner
   winner = 1 if opinions.count(1) > opinions.count(0) else 0
   #Return winner
