@@ -37,7 +37,7 @@ def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, dfunc=euclid
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
 
-  distance_list = [(index, dfunc(target_vector, row)) for row in crowd_matrix]
+  distance_list = [(index, dfunc(target_vector, row)) for index,row in enumerate(crowd_matrix)]
     
   direction = False  #e.g., for euclidean will be ascending order
   if dfunc==cosine_similarity: direction = True  #make it descending
