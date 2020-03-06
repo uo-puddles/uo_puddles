@@ -32,7 +32,7 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn_winner(target_vector:list, crowd_table,  k:int, dfunc=up.euclidean_distance) -> int:
+def knn_winner(target_vector:list, crowd_table,  k:int, dfunc=euclidean_distance) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
