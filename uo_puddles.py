@@ -32,12 +32,12 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn_euclidean(target_vector:list, crowd_table,  k:int) -> int:
+def knn_letters(target_vector:list, crowd_table,  k:int, dfunc=euclidean_distance) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
 
-  distance_list = [(index, euclidean_distance(target_vector, crowd_table.iloc[index].tolist()[2:])) for index in range(len(crowd_table))]
+  distance_list = [(index, dfunc(target_vector, crowd_table.iloc[index].tolist()[2:])) for index in range(len(crowd_table))]
   sorted_crowd =  sorted(distance_list, key=lambda pair: pair[1])
   #Compute top_k
   top_k = [i for i,d in sorted_crowd[:k]]
