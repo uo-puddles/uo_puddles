@@ -32,13 +32,17 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn_letters(target_vector:list, crowd_table,  k:int, dfunc=euclidean_distance) -> int:
+def knn(target_vector:list, crowd_matrix:list,  k:int, dfunc=euclidean_distance) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
-  assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
+  assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
 
-  distance_list = [(index, dfunc(target_vector, crowd_table.iloc[index].tolist()[2:])) for index in range(len(crowd_table))]
-  sorted_crowd =  sorted(distance_list, key=lambda pair: pair[1])
+  distance_list = [(index, dfunc(target_vector, row)) for row in crowd_matrix]
+    
+  direciton = False
+  if dfunc==cosine_similarity: direction = True
+  sorted_crowd =  sorted(distance_list, key=lambda pair: pair[1], reverse=direction)  #False is ascending
+
   #Compute top_k
   top_k = [i for i,d in sorted_crowd[:k]]
   #Compute opinions
@@ -60,7 +64,7 @@ def ordered_distances_matrix(target_vector:list, crowd_matrix:list,  dfunc=eucli
   distance_list = [(index, dfunc(target_vector, row)) for index, row in enumerate(crowd_matrix)]
   return sorted(distance_list, key=lambda pair: pair[1])
 
-def knn(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
+def knn_table(target_vector:list, crowd_table:dframe, answer_column:str, k:int, dfunc:Callable) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
   assert isinstance(answer_column, str), f'answer_column not a string but instead a {type(answer_column)}'
