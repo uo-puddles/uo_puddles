@@ -32,21 +32,21 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn(target_vector:list, crowd_matrix:list,  k:int, dfunc=euclidean_distance) -> int:
+def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, dfunc=euclidean_distance) -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
   assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
 
   distance_list = [(index, dfunc(target_vector, row)) for row in crowd_matrix]
     
-  direciton = False
-  if dfunc==cosine_similarity: direction = True
+  direction = False  #e.g., for euclidean will be ascending order
+  if dfunc==cosine_similarity: direction = True  #make it descending
   sorted_crowd =  sorted(distance_list, key=lambda pair: pair[1], reverse=direction)  #False is ascending
 
   #Compute top_k
   top_k = [i for i,d in sorted_crowd[:k]]
   #Compute opinions
-  opinions = [crowd_table.iloc[index].tolist()[0] for index in top_k]
+  opinions = [labels[index] for index in top_k]
   #Compute winner
   winner = 1 if opinions.count(1) > opinions.count(0) else 0
   #Return winner
