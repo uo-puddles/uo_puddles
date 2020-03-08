@@ -132,12 +132,28 @@ def cm_f1(confusion_dictionary: dict) -> float:
   return f1
 
 #************************************** WEEK 2
+import numpy as np
+from numpy.linalg import norm  #hint: i found this useful
+def fast_cosine(v1:narray, v2:narray) -> float:
+  assert isinstance(v1, numpy.ndarray), f"v1 must be a numpy array but instead is {type(v1)}"
+  assert len(v1.shape) == 1, f"v1 must be a 1d array but instead is {len(v1.shape)}d"
+  assert isinstance(v2, numpy.ndarray), f"v2 must be a numpy array but instead is {type(v2)}"
+  assert len(v2.shape) == 1, f"v2 must be a 1d array but instead is {len(v2.shape)}d"
+  assert len(v1) == len(v2), f'v1 and v2 must have same length but instead have {len(v1)} and {len(v2)}'
+
+  x = norm(v1)
+  if x==0: return 0.0
+  y = norm(v2)
+  if y==0: return 0.0
+  z = x*y
+  if z==0: return 0.0  #check for underflow
+  return np.dot(v1, v2)/z
 
 def cosine_similarity(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
   assert isinstance(vect2, list), f'vect2 is not a list but a {type(vect2)}'
   assert len(vect1) == len(vect2), f"Mismatching length for vectors: {len(vect1)} and {len(vect2)}"
-  
+  '''
   sumxx, sumxy, sumyy = 0, 0, 0
   for i in range(len(vect1)):
       x = vect1[i]; y = vect2[i]
@@ -148,6 +164,8 @@ def cosine_similarity(vect1:list ,vect2:list) -> float:
   #have to invert to order on smallest
 
   return sumxy/denom if denom > 0 else 0.0
+  '''
+  return fast_cosine(np.narray(vect1), np.narray(vect2)).tolist()
 
 def inverse_cosine_similarity(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
