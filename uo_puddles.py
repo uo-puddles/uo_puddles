@@ -1,8 +1,11 @@
+import numpy as np
+from numpy.linalg import norm
 import pandas as pd
 import numpy
 from typing import TypeVar, Callable
 dframe = TypeVar('pd.core.frame.DataFrame')
 narray = TypeVar('numpy.ndarray')
+
 
 def hello_ds():
     print("Big hello to you")
@@ -13,13 +16,17 @@ def euclidean_distance(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
   assert isinstance(vect2, list), f'vect2 is not a list but a {type(vect2)}'
   assert len(vect1) == len(vect2), f"Mismatching length for euclidean vectors: {len(vect1)} and {len(vect2)}"
-
+  '''
   sum = 0
   for i in range(len(vect1)):
       sum += (vect1[i] - vect2[i])**2
       
   #could put assert here on result   
   return sum**.5  # I claim that this square root is not needed in K-means - see why?
+  '''
+  a = np.array(vect1)
+  b = np.array(vect2)
+  return norm(a-b)
 
 def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_column:str, dfunc=euclidean_distance) -> list:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
@@ -34,15 +41,16 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, dfunc=euclidean_distance) -> int:
+def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, sim_type='euclidean') -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
-  assert callable(dfunc), f'dfunc not a function but instead a {type(dfunc)}'
+  sim_funs = {'euclidean': [euclidean_distance, False], 'cosine': [cosine_similarity, True]}
+  assert sim_type in sim_funs, f'sim_type must be one of {list(sim_funs.keys())}.'
 
+  dfunc = sim_funs[sim_type][0]
   distance_list = [(index, dfunc(target_vector, row)) for index,row in enumerate(crowd_matrix)]
     
-  direction = False  #e.g., for euclidean will be ascending order
-  if dfunc==cosine_similarity: direction = True  #make it descending
+  direction = sim_funs[sim_type][1]
   sorted_crowd =  sorted(distance_list, key=lambda pair: pair[1], reverse=direction)  #False is ascending
 
   #Compute top_k
@@ -134,8 +142,7 @@ def cm_f1(confusion_dictionary: dict) -> float:
   return f1
 
 #************************************** WEEK 2
-import numpy as np
-from numpy.linalg import norm  #hint: i found this useful
+
 def fast_cosine(v1:narray, v2:narray) -> float:
   assert isinstance(v1, numpy.ndarray), f"v1 must be a numpy array but instead is {type(v1)}"
   assert len(v1.shape) == 1, f"v1 must be a 1d array but instead is {len(v1.shape)}d"
@@ -234,7 +241,7 @@ def bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:dframe,
   return result_list
 
 #***************************************** WEEK 4
-
+'''
 import nltk
 nltk.download('stopwords')
 from nltk.corpus import stopwords
@@ -271,6 +278,7 @@ def build_word_bag(stopwords:list, training_table:dframe) -> dict:
         else:
             bow[word] = list(starters[label])  #need list to get a copy
   return bow
+'''
 
 def robust_bayes(evidence:set, evidence_bag:dict, training_table:dframe, laplace:float=1.0) -> tuple:
   assert isinstance(evidence, set), f'evidence not a set but instead a {type(evidence)}'
