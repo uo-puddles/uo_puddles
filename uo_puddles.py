@@ -331,14 +331,4 @@ def robust_bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:
     result_list.append(p_tuple)
   return result_list
 
-def curry_x(old_func,x):
-  #this is the closure. It contains the value of x.
 
-  def inner(y): return old_func(x,y)  #define a new function that uses x from closure and passes in y.
-
-  return inner  #will return a function of 1 argument. But that function will carry the closure with it.
-
-
-word_parser = curry_x(get_clean_words, swords)
-
-def foo(): return 'foo'
