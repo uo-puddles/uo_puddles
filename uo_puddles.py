@@ -166,7 +166,7 @@ def cosine_similarity(vect1:list ,vect2:list) -> float:
 
   return sumxy/denom if denom > 0 else 0.0
   '''
-  return fast_cosine(np.narray(vect1), np.narray(vect2)).tolist()
+  return fast_cosine(np.array(vect1), np.array(vect2)).tolist()
 
 def inverse_cosine_similarity(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
