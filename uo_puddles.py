@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy
 from typing import TypeVar, Callable
 dframe = TypeVar('pd.core.frame.DataFrame')
 narray = TypeVar('numpy.ndarray')
