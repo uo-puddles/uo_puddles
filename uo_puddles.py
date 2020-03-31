@@ -8,6 +8,9 @@ narray = TypeVar('numpy.ndarray')
 
 #========================
 
+def foobar(table):
+  return table
+
 def new_row(table, row_list):
   row_list
   table
