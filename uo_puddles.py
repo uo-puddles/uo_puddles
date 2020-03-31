@@ -9,8 +9,7 @@ narray = TypeVar('numpy.ndarray')
 #========================
 
 def append(df:dframe, row_list:list) -> None:
-    a_series = pd.Series(row_list, index = df.columns)
-    df = df.append(a_series, ignore_index=True)
+    df.loc[len(df)] = row_list
     return None
 
 
