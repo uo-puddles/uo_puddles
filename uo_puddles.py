@@ -8,10 +8,10 @@ narray = TypeVar('numpy.ndarray')
 
 #========================
 
-def new_row(df, row_list:list):
-  if type(df) == list: return 'df is a list'
-  df.loc[len(df)] = row_list
-  return df
+def new_row(table, row_list):
+  if type(table) == list: return 'df is a list'
+  table.loc[len(table)] = row_list
+  return table
 
 
 def hello_ds():
