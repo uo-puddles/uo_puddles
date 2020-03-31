@@ -9,6 +9,7 @@ narray = TypeVar('numpy.ndarray')
 #========================
 
 def new_row(df, row_list:list):
+  if type(df) == list: return 'df is a list'
   df.loc[len(df)] = row_list
   return df
 
