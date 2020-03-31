@@ -8,8 +8,11 @@ narray = TypeVar('numpy.ndarray')
 
 #========================
 
-def foobar(table):
-  return table
+def hello_ds():
+    print("Big hello to you")
+    
+def foobar():
+  return None
 
 def new_row(table, row_list):
   row_list
@@ -18,9 +21,6 @@ def new_row(table, row_list):
   table.loc[len(table)] = row_list
   return table
 
-
-def hello_ds():
-    print("Big hello to you")
     
 #************************************** WEEK 1
 
