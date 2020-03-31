@@ -8,9 +8,9 @@ narray = TypeVar('numpy.ndarray')
 
 #========================
 
-def new_row(df:dframe, row_list:list) -> None:
-    df.loc[len(df)] = row_list
-    return df
+def new_row(df, row_list:list):
+  df.loc[len(df)] = row_list
+  return df
 
 
 def hello_ds():
