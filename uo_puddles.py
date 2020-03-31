@@ -8,8 +8,8 @@ narray = TypeVar('numpy.ndarray')
 
 #========================
 
-def append(df:dframe, row_list:list) -> None:
-    df.loc[len(df)] = row_list
+def new_row(df:dframe, row_list:list) -> None:
+    df = df.loc[len(df)] = row_list
     return None
 
 
