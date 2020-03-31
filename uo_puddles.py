@@ -13,6 +13,14 @@ def hello_ds():
 
 
 #************************************** WEEK 1
+def foobar():
+  return None
+
+def new_row(table, row_list):
+  table.loc[len(table)] = row_list
+  return table
+
+    
 
 def euclidean_distance(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
