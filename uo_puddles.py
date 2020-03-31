@@ -10,18 +10,8 @@ narray = TypeVar('numpy.ndarray')
 
 def hello_ds():
     print("Big hello to you")
-    
-def foobar():
-  return None
 
-def new_row(table, row_list):
-  row_list
-  table
-  if type(table) == list: return 'df is a list'
-  table.loc[len(table)] = row_list
-  return table
 
-    
 #************************************** WEEK 1
 
 def euclidean_distance(vect1:list ,vect2:list) -> float:
