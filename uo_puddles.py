@@ -54,13 +54,14 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
 def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, sim_type='euclidean') -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
-  sim_funs = {'euclidean': [euclidean_distance, False], 'cosine': [cosine_similarity, True]}
+
   #assert sim_type in sim_funs, f'sim_type must be one of {list(sim_funs.keys())}.'
     
   if sim_type in ['pearson', 'linear', 'correlation']:
     distance_list = [[index, abs(np.corrcoef(np.array(target_vector), np.array(row))[0][1])] for index,row in enumerate(crowd_matrix)]
     direction = True
   else:
+    sim_funs = {'euclidean': [euclidean_distance, False], 'cosine': [cosine_similarity, True]}
     dfunc = sim_funs[sim_type][0]
     distance_list = [[index, dfunc(target_vector, row)] for index,row in enumerate(crowd_matrix)]
     direction = sim_funs[sim_type][1]
