@@ -20,7 +20,24 @@ def new_row(table, row_list):
   table.loc[len(table)] = row_list
   return table
 
-    
+def update_gothic_row(word_table, word:str, author:str):
+  author_list = ['EAP', 'MWS', 'HPL']
+  assert author in author_list, f'{author} not found in {author_list}'
+  value_list = [[1,0,0], [0,1,0], [0,0,1]]
+  word_list = word_table['word'].tolist()
+  real_word = word if type(word) == str else word.text
+  k = author_list.index(author)
+
+  if real_word in word_list:
+    j = word_list.index(real_word)
+    row = word_table.iloc[j].tolist()
+    row[1+k] += 1
+    word_table.loc[j] = row
+  else:
+    #not seen yet
+    row = [real_word] + value_list[k]
+    word_table.loc[len(word_table)] = row
+  return word_table
 
 def euclidean_distance(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
