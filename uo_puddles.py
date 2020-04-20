@@ -219,6 +219,68 @@ def inverse_cosine_similarity(vect1:list ,vect2:list) -> float:
 
 #***************************************** WEEK 3
 
+def bayes_laplace(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
+  assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'author' in training_table, f'author column is not found in training_table'
+
+  author_list = training_table.author.to_list()
+  mapping = ['EAP', 'MWS', 'HPL']
+  label_list = [mapping.index(auth) for auth in author_list]
+  n_classes = len(set(label_list))
+  #assert len(list(evidence_bag.values())[0]) == n_classes, f'Values in evidence_bag do not match number of unique classes ({n_classes}) in labels.'
+
+  word_list = evidence_bag.index.values.tolist()
+
+  evidence = list(set(evidence))  #remove duplicates
+  counts = []
+  probs = []
+  for i in range(n_classes):
+    ct = label_list.count(i)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for a_class in range(n_classes):
+    numerator = 1
+    for ei in evidence:
+      if ei not in word_list:
+        #did not see word in training set
+        the_value =  1/(counts[a_class] + len(evidence_bag) + laplace)
+      else:
+        all_values = evidence_bag.loc[ei]
+        the_value = ((all_values[a_class]+laplace)/(counts[a_class] + len(evidence_bag) + laplace)) 
+      numerator *= the_value
+
+    results.append(max(numerator * probs[a_class], 2.2250738585072014e-308))
+
+  return tuple(results)
+
+
+def bayes_laplace_tester(testing_table:dframe, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> list:
+  assert isinstance(testing_table, pd.core.frame.DataFrame), f'test_table not a dataframe but instead a {type(testing_table)}'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'author' in training_table, f'author column is not found in training_table'
+  assert 'text' in testing_table, f'text column is not found in testing_table'
+
+  result_list = []
+  for i,target_row in testing_table.iterrows():
+    raw_text = target_row['text']  #a sentence
+    doc = nlp(raw_text.lower())  #create the tokens
+
+    evidence_list = []
+    for token in doc:
+      if not token.is_alpha or token.is_stop: continue
+      evidence_list.append(token.text)
+
+    p_tuple = bayes_laplace(list(set(evidence_list)), evidence_bag, training_table, laplace)
+    result_list.append(p_tuple)
+  return result_list
+
 def bayes(evidence:set, evidence_bag:dict, training_table:dframe) -> tuple:
   assert isinstance(evidence, set), f'evidence not a set but instead a {type(evidence)}'
   assert isinstance(evidence_bag, dict), f'evidence_bag not a dict but instead a {type(evidence_bag)}'
