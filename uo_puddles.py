@@ -16,6 +16,17 @@ def hello_ds():
 def foobar():
   return None
 
+#used week 5 and moved here week 6
+def float_mult(number_list: list) -> float:
+  assert isinstance(number_list, list), f'number_list should be a list but is instead a {type(number_list)}'
+  assert all([isinstance(item, float) for item in number_list]), f'number_list must contain all floats'
+
+  result = 1.
+  for number in number_list:  #fancier version of for i in range(n):
+    result *= number
+
+  return result
+
 def new_row(table, row_list):
   table.loc[len(table)] = row_list
   return table
