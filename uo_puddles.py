@@ -1,10 +1,12 @@
 import numpy as np
 from numpy.linalg import norm
 import pandas as pd
+import matplotlib.pyplot as plt
 import numpy
 from typing import TypeVar, Callable
 dframe = TypeVar('pd.core.frame.DataFrame')
 narray = TypeVar('numpy.ndarray')
+
 
 #========================
 
@@ -14,6 +16,27 @@ def hello_ds():
 
 #************************************** WEEK 1
 def foobar():
+  return None
+
+def heat_map(zipped):
+  case_list = [
+             [zipped.count(("EAP", "EAP")), zipped.count(("EAP", "MWS")), zipped.count(("EAP", "HPL"))],
+             [zipped.count(("MWS", "EAP")), zipped.count(("MWS", "MWS")), zipped.count(("MWS", "HPL"))],
+             [zipped.count(("HPL", "EAP")), zipped.count(("HPL", "MWS")), zipped.count(("HPL", "HPL"))]
+    ]
+
+  fig, ax = plt.subplots(figsize=(10, 10))
+  ax.imshow(case_list)
+  ax.grid(False)
+  ax.set_xlabel('Predicted outputs', fontsize=32, color='black')
+  ax.set_ylabel('Actual outputs', fontsize=32, color='black')
+  ax.xaxis.set(ticks=range(3))
+  ax.yaxis.set(ticks=range(3))
+  
+  for i in range(3):
+      for j in range(3):
+          ax.text(j, i, case_list[i][j], ha='center', va='center', color='white', fontsize=32)
+  plt.show()
   return None
 
 #used week 5 and moved here week 6
