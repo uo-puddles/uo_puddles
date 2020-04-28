@@ -39,6 +39,46 @@ def heat_map(zipped):
   plt.show()
   return None
 
+def bayes_laplace(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
+  assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'author' in training_table, f'author column is not found in training_table'
+
+  author_list = training_table.author.to_list()
+  mapping = ['EAP', 'MWS', 'HPL']
+  label_list = [mapping.index(auth) for auth in author_list]
+  n_classes = len(set(label_list))
+  #assert len(list(evidence_bag.values())[0]) == n_classes, f'Values in evidence_bag do not match number of unique classes ({n_classes}) in labels.'
+
+  word_list = evidence_bag.index.values.tolist()
+
+  evidence = list(set(evidence))  #remove duplicates
+  counts = []
+  probs = []
+  for i in range(n_classes):
+    ct = label_list.count(i)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for a_class in range(n_classes):
+    numerator = 1
+    for ei in evidence:
+      if ei not in word_list:
+        #did not see word in training set
+        the_value =  1/(counts[a_class] + len(evidence_bag))
+      else:
+        values = evidence_bag.loc[ei].tolist()
+        the_value = ((values[a_class]+laplace)/(counts[a_class] + laplace*len(evidence_bag)))
+      numerator *= the_value
+    #if (numerator * probs[a_class]) == 0: print(evidence)
+    results.append(max(numerator * probs[a_class], 2.2250738585072014e-308))
+
+  return tuple(results)
+
 #used week 5 and moved here week 6
 def float_mult(number_list: list) -> float:
   assert isinstance(number_list, list), f'number_list should be a list but is instead a {type(number_list)}'
