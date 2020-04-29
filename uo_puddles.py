@@ -18,23 +18,25 @@ def hello_ds():
 def foobar():
   return None
 
-def heat_map(zipped):
-  case_list = [
-             [zipped.count(("EAP", "EAP")), zipped.count(("EAP", "MWS")), zipped.count(("EAP", "HPL"))],
-             [zipped.count(("MWS", "EAP")), zipped.count(("MWS", "MWS")), zipped.count(("MWS", "HPL"))],
-             [zipped.count(("HPL", "EAP")), zipped.count(("HPL", "MWS")), zipped.count(("HPL", "HPL"))]
-    ]
+def heat_map(zipped, label_list):
+  case_list = []
+  for i in range(len(label_list)):
+    inner_list = []
+    for j in range(len(label_list)):
+      inner_list.append(zipped.count((label_list[i], label_list[j])))
+    case_list.append(inner_list)
+
 
   fig, ax = plt.subplots(figsize=(10, 10))
   ax.imshow(case_list)
   ax.grid(False)
   ax.set_xlabel('Predicted outputs', fontsize=32, color='black')
   ax.set_ylabel('Actual outputs', fontsize=32, color='black')
-  ax.xaxis.set(ticks=range(3))
-  ax.yaxis.set(ticks=range(3))
+  ax.xaxis.set(ticks=range(len(label_list)))
+  ax.yaxis.set(ticks=range(len(label_list)))
   
-  for i in range(3):
-      for j in range(3):
+  for i in range(len(label_list)):
+      for j in range(len(label_list)):
           ax.text(j, i, case_list[i][j], ha='center', va='center', color='white', fontsize=32)
   plt.show()
   return None
