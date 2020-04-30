@@ -41,7 +41,7 @@ def heat_map(zipped, label_list):
   plt.show()
   return None
 
-def bayes_laplace(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
+def bayes_gothic(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
   assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
   assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
   assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
