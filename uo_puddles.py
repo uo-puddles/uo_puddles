@@ -43,6 +43,7 @@ def heat_map(zipped, label_list):
 
 def bayes_gothic(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
   assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert all([isinstance(item, str) for item in evidence]), f'evidence must be list of strings (not spacy tokens)'
   assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
   assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
   assert 'author' in training_table, f'author column is not found in training_table'
@@ -310,6 +311,7 @@ def update_tweet_row(word_table, word:str, author:int):
 
 def bayes_tweet(evidence:list, evidence_bag, training_table, laplace:float=1.0) -> tuple:
   assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert all([isinstance(item, str) for item in evidence]), f'evidence must be list of strings (not spacy tokens)'
   assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
   assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
 
