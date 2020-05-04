@@ -65,6 +65,7 @@ def bayes_gothic(evidence:list, evidence_bag:dframe, training_table:dframe, lapl
 
   #now have counts and probs for all classes
 
+  #CONSIDER CHANGING TO LN OF PRODUCTS. END UP SUMMING LOGS OF EACH ITEM. AVOIDS UNDERFLOW.
   results = []
   for a_class in range(n_classes):
     numerator = 1
@@ -324,6 +325,7 @@ def bayes_tweet(evidence:list, evidence_bag, training_table, laplace:float=1.0) 
     probs.append(ct/len(label_list))
 
   #now have counts and probs for all classes
+  #CONSIDER CHANGING TO LN OF PRODUCTS. END UP SUMMING LOGS OF EACH ITEM. AVOIDS UNDERFLOW.
 
   results = []
   for a_class in range(2):
@@ -384,6 +386,7 @@ def bayes(evidence:set, evidence_bag:dict, training_table:dframe) -> tuple:
     probs.append(ct/len(label_list))
 
   #now have counts and probs for all classes
+  #CONSIDER CHANGING TO LN OF PRODUCTS. END UP SUMMING LOGS OF EACH ITEM. AVOIDS UNDERFLOW.
 
   results = []
   for a_class in range(n_classes):
