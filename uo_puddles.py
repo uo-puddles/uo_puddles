@@ -81,7 +81,7 @@ def create_model(input_dim=300, lyrs=(64,32)):
     return model
   
 def grid_search(layers_list, epochs_list, X_train, Y_train):
-  tup_layers = tuple(layers_list)
+  tup_layers = (tuple(l) for l in layers_list)
   tup_epochs = tuple(epochs_list)
   
   model = KerasClassifier(build_fn=create_model, verbose=0)  #use our create_model
