@@ -17,6 +17,10 @@ from tensorflow.python.keras.layers import Dense, Activation, Dropout
 from tensorflow.python.keras import Sequential
 from tensorflow.keras.utils import plot_model
 
+from sklearn.model_selection import GridSearchCV
+#from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
+
 #libraries to help visualize training results later
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import rcParams
@@ -70,6 +74,42 @@ def ann_train(model, x_train:list, y_train:list, epochs:int, batch_size=1):
   plt.legend(['binary accuracy', 'loss'], loc='upper left')
   plt.show()
   return training
+
+#for grid search
+def create_model(input_dim=300, lyrs=(64,32))
+    model = ann_build_model(input_dim, lyrs, metrics='accuracy')
+    return model
+  
+def grid_search(layers_list, epochs_list, X_train, Y_train):
+  tup_layers = tuple(layers_list)
+  tup_epochs = tuple(epochs_list)
+  
+  model = KerasClassifier(build_fn=create_model, verbose=0)  #use our create_model
+  
+  # define the grid search parameters
+  batch_size = [1]  #starting with just a few choices
+  epochs = tup_epochs
+  lyrs = tup_layers
+
+  #use this to override our defaults. keys must match create_model args
+  param_grid = dict(batch_size=batch_size, epochs=epochs, lyrs=lyrs)
+
+  # buld the search grid
+  grid = GridSearchCV(estimator=model,   #we created model above
+                      param_grid=param_grid,
+                      cv=3,  #use 3 folds for cross-validation
+                      verbose=2)  # include n_jobs=-1 if you are using CPU
+  
+  grid_result = grid.fit(np.array(X_train), np.array(Y_train))
+  
+  # summarize results
+  print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
+  means = grid_result.cv_results_['mean_test_score']
+  stds = grid_result.cv_results_['std_test_score']
+  params = grid_result.cv_results_['params']
+  for mean, stdev, param in zip(means, stds, params):
+      print("%f (%f) with: %r" % (mean, stdev, param))
+      
 #========================
 
 def hello_ds():
