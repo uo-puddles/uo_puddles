@@ -76,7 +76,7 @@ def ann_train(model, x_train:list, y_train:list, epochs:int, batch_size=1):
   return training
 
 #for grid search
-def create_model(input_dim=300, lyrs=(64,32))
+def create_model(input_dim=300, lyrs=(64,32)):
     model = ann_build_model(input_dim, lyrs, metrics='accuracy')
     return model
   
