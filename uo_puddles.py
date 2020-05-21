@@ -23,7 +23,7 @@ from matplotlib.pyplot import rcParams
 #%matplotlib inline
 rcParams['figure.figsize'] = 10,8
 
-def ann_build_model(n:int, layer_list: list, seed=1234):
+def ann_build_model(n:int, layer_list: list, seed=1234, metrics='binary_accuracy'):
   assert isinstance(n, int), f'n is an int, the number of columns/features of each sample. Instead got {type(n)}'
   assert isinstance(layer_list, list) or isinstance(layer_list, tuple), f'layer_list is a list or tuple, the number of nodes per layer. Instead got {type(layer_list)}'
 
@@ -45,7 +45,7 @@ def ann_build_model(n:int, layer_list: list, seed=1234):
   optimizer_choice = 'sgd'
   model.compile(loss=loss_choice,
               optimizer=optimizer_choice,
-              metrics=['binary_accuracy'])  #metrics is just to help us to see what is going on. kind of debugging info.
+              metrics=[metrics])  #metrics is just to help us to see what is going on. kind of debugging info.
   return model
 
 def ann_train(model, x_train:list, y_train:list, epochs:int, batch_size=1):
