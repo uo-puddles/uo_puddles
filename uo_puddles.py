@@ -25,7 +25,7 @@ rcParams['figure.figsize'] = 10,8
 
 def ann_build_model(n:int, layer_list: list, seed=1234):
   assert isinstance(n, int), f'n is an int, the number of columns/features of each sample. Instead got {type(n)}'
-  assert isinstance(layer_list, list), f'layer_list is a list, the number of nodes per layer. Instead got {type(layer_list)}'
+  assert isinstance(layer_list, list) or isinstance(layer_list, tuple), f'layer_list is a list or tuple, the number of nodes per layer. Instead got {type(layer_list)}'
 
   if len(layer_list) == 1:
     print('Warning: layer_list has only 1 layer, the output layer. So no hidden layers')
