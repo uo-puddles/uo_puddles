@@ -92,7 +92,7 @@ def grid_search(layers_list, epochs_list, X_train, Y_train, indim=300):
   lyrs = tup_layers
 
   #use this to override our defaults. keys must match create_model args
-  param_grid = dict(batch_size=batch_size, epochs=epochs, input_dim=indim, lyrs=lyrs)
+  param_grid = dict(batch_size=batch_size, epochs=epochs, input_dim=[indim], lyrs=lyrs)
 
   # buld the search grid
   grid = GridSearchCV(estimator=model,   #we created model above
