@@ -52,7 +52,7 @@ def ann_build_model(n:int, layer_list: list, seed=1234, metrics='binary_accuracy
               metrics=[metrics])  #metrics is just to help us to see what is going on. kind of debugging info.
   return model
 
-def ann_train(model, x_train:list, y_train:list, epochs:int, batch_size=1):
+def ann_train(model, x_train:list, y_train:list, epochs:int,  batch_size=1):
   assert isinstance(x_train, list), f'x_train is a list, the list of samples. Instead got {type(x_train)}'
   assert isinstance(y_train, list), f'y_train is a list, the list of samples. Instead got {type(y_train)}'
   assert len(x_train) == len(y_train), f'x_train must be the same length as y_train'
@@ -80,7 +80,7 @@ def create_model(input_dim=300, lyrs=(64,32)):
     model = ann_build_model(input_dim, lyrs, metrics='accuracy')
     return model
   
-def grid_search(layers_list, epochs_list, X_train, Y_train):
+def grid_search(layers_list, epochs_list, X_train, Y_train, indim=300):
   tup_layers = tuple([tuple(l) for l in layers_list])
   tup_epochs = tuple(epochs_list)
   
@@ -92,7 +92,7 @@ def grid_search(layers_list, epochs_list, X_train, Y_train):
   lyrs = tup_layers
 
   #use this to override our defaults. keys must match create_model args
-  param_grid = dict(batch_size=batch_size, epochs=epochs, lyrs=lyrs)
+  param_grid = dict(batch_size=batch_size, epochs=epochs, input_dim=indim, lyrs=lyrs)
 
   # buld the search grid
   grid = GridSearchCV(estimator=model,   #we created model above
