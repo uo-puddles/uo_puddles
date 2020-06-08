@@ -201,8 +201,7 @@ def new_row(table, row_list):
   return table
 
 def update_gothic_row(word_table, word:str, author:str):
-  author_list = ['EAP', 'MWS', 'HPL']
-  assert author in author_list, f'{author} not found in {author_list}'
+  assert author in word_table.author.unique(), f'{author} not found in {word_table.author.unique()}'
   value_list = [[1,0,0], [0,1,0], [0,0,1]]
   word_list = word_table['word'].tolist()
   real_word = word if type(word) == str else word.text
