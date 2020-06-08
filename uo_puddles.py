@@ -198,7 +198,7 @@ def float_mult(number_list: list) -> float:
 
 def update_gothic_row(word_table, word:str, author:str):
   #assert author in word_table.columns.tolist(), f'{author} not found in {word_table.columns.tolist()}'
-
+  print(word_table.columns.tolist(), word_table['word'].tolist())
   word_list = word_table['word'].tolist()
   real_word = word if type(word) == str else word.text
 
