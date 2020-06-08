@@ -201,21 +201,19 @@ def new_row(table, row_list):
   return table
 
 def update_gothic_row(word_table, word:str, author:str):
+  print(word, author, word_table.author.unique()
   assert author in word_table.author.unique(), f'{author} not found in {word_table.author.unique()}'
-  value_list = [[1,0,0], [0,1,0], [0,0,1]]
+
   word_list = word_table['word'].tolist()
   real_word = word if type(word) == str else word.text
-  k = author_list.index(author)
 
   if real_word in word_list:
     j = word_list.index(real_word)
-    row = word_table.iloc[j].tolist()
-    row[1+k] += 1
-    word_table.loc[j] = row
   else:
-    #not seen yet
-    row = [real_word] + value_list[k]
-    word_table.loc[len(word_table)] = row
+    j = len(word_table)
+    word_table.iloc[j] = [real_world + [0]*len(word_table.author.unique())
+
+  word_table.loc[j, 'author'] = += 1
   return word_table
 
 def euclidean_distance(vect1:list ,vect2:list) -> float:
