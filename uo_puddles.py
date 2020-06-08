@@ -197,9 +197,8 @@ def float_mult(number_list: list) -> float:
   return result
 
 def update_gothic_row(word_table, word:str, author:str):
-  #assert author in word_table.columns.tolist(), f'{author} not found in {word_table.columns.tolist()}'
-  print(word_table.columns.tolist(), word_table['word'].tolist())
-  '''
+  assert author in word_table.columns.tolist(), f'{author} not found in {word_table.columns.tolist()}'
+
   word_list = word_table['word'].tolist()
   real_word = word if type(word) == str else word.text
 
@@ -210,7 +209,7 @@ def update_gothic_row(word_table, word:str, author:str):
     word_table.loc[j] = [real_word] + [0]*(len(word_table.columns)-1)
 
   word_table.loc[j, author] += 1
-  '''
+
   return word_table
 
 def euclidean_distance(vect1:list ,vect2:list) -> float:
