@@ -6,6 +6,7 @@ import numpy
 from typing import TypeVar, Callable
 dframe = TypeVar('pd.core.frame.DataFrame')
 narray = TypeVar('numpy.ndarray')
+import math
 
 #======== Below is for week 8 and beyond
 
@@ -150,7 +151,7 @@ def bayes_gothic(evidence:list, evidence_bag:dframe, training_table:dframe, lapl
   assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
   assert 'author' in training_table, f'author column is not found in training_table'
 
-  author_list = training_table.author.to_list()
+  author_list = training_table.author.unique().tolist()
   mapping = ['EAP', 'MWS', 'HPL']
   label_list = [mapping.index(auth) for auth in author_list]
   n_classes = len(set(label_list))
@@ -195,6 +196,46 @@ def float_mult(number_list: list) -> float:
     result *= number
 
   return result
+
+#uses logs, can handle any number of authors/classes, returns value in slightly different way
+def bayes_gothic_gen(evidence:list, evidence_bag:dframe, training_table:dframe, laplace:float=1.0) -> tuple:
+  assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert all([isinstance(item, str) for item in evidence]), f'evidence must be list of strings (not spacy tokens)'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert 'author' in training_table, f'author column is not found in training_table'
+  
+  author_list = sorted(training_table.author.unique().tolist())
+  word_list = evidence_bag.index.values.tolist()
+  label_list = training_table['author'].tolist()
+  evidence = list(set(evidence))  #remove duplicates
+  
+  counts = []
+  probs = []
+  for author in author_list:
+    ct = label_list.count(author)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for i, author in enumerate(author_list):
+    prods = [math.log(probs[i])]  #P(author)
+    for ei in evidence:
+      if ei not in word_list:
+        #did not see word in training set
+        the_value =  1/(counts[i] + len(evidence_bag))
+      else:
+        value = evidence_bag.loc[ei, author]
+        the_value = ((value+laplace)/(counts[i] + laplace*len(evidence_bag)))
+      prods.append(math.log(the_value))
+  
+    results.append((author, sum(prods)))
+  the_min = min(results, key=lambda pair: pair[1])[1]  #shift so smallest is 0
+  return [[a,r+abs(the_min)]    for a,r in results]
+
+
 
 def update_gothic_row(word_table, word:str, author:str):
   assert author in word_table.columns.tolist(), f'{author} not found in {word_table.columns.tolist()}'
