@@ -235,6 +235,36 @@ def bayes_gothic_gen(evidence:list, evidence_bag:dframe, training_table:dframe, 
   the_min = min(results, key=lambda pair: pair[1])[1]  #shift so smallest is 0
   return [[a,r+abs(the_min)]    for a,r in results]
 
+#uses logs, can handle any number of authors/classes, returns value in slightly different way
+def bayes_by_author(evidence:list, evidence_bag, author_dict, laplace:float=1.0) -> tuple:
+  import math
+  assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert all([isinstance(item, str) for item in evidence]), f'evidence must be list of strings (not spacy tokens)'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(author_dict, dict), f'author_dict not a dict but instead a {type(author_dict)}'
+  
+  author_list = sorted(list(author_dict.keys()))
+  word_list = evidence_bag.index.values.tolist()
+  #label_list = training_table['author'].tolist()
+  evidence = list(set(evidence))  #remove duplicates
+
+  total_sents = sum(list(author_dict.values()))
+
+  results = []
+  for i, author in enumerate(author_list):
+    prods = [math.log(author_dict[author]/total_sents)]  #P(author)
+    for ei in evidence:
+      if ei not in word_list:
+        #did not see word in training set
+        the_value =  1/(author_dict[author] + len(evidence_bag))
+      else:
+        value = evidence_bag.loc[ei, author]
+        the_value = ((value+laplace)/(author_dict[author] + laplace*len(evidence_bag)))
+      prods.append(math.log(the_value))
+  
+    results.append((author, sum(prods)))
+  the_min = min(results, key=lambda pair: pair[1])[1]  #shift so smallest is 0
+  return [[a,r+abs(the_min)]    for a,r in results]
 
 
 def update_gothic_row(word_table, word:str, author:str):
