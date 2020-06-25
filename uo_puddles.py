@@ -268,7 +268,7 @@ def bayes_by_author(evidence:list, evidence_bag, author_dict, laplace:float=1.0)
 
 
 def update_gothic_row(word_table, word:str, author:str):
-  assert author in [v[0] for v in word_table.columns.tolist()], f'{author} not found in {[v[0] for v in word_table.columns.tolist()]}'
+  assert author in word_table.columns.tolist(), f'{author} not found in {word_table.columns.tolist()}'
 
   word_list = word_table['word'].tolist()
   real_word = word if type(word) == str else word.text
