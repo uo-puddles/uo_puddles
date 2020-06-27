@@ -708,12 +708,6 @@ def subtractv(x:list, y:list) -> list:
 
   return result
 
-subtractv([5, 10, 20],[1, 2, 3])  #[4, 8, 17]
-
-##Step 1.
-
-Please define addv. Use subtractv as a template.
-
 def addv(x:list, y:list) -> list:
   assert isinstance(x, list), f"x must be a list but instead is {type(x)}"
   assert isinstance(y, list), f"y must be a list but instead is {type(y)}"
@@ -729,11 +723,6 @@ def addv(x:list, y:list) -> list:
 
   return result
 
-addv([5, 10, 20],[1, 2, 3])  #[6, 12, 23]
-
-##Step 2.
-
-Please define dividev. This function takes a list and a number and divides every element of the list by the number.
 
 def dividev(x:list, c) -> list:
   assert isinstance(x, list), f"x must be a list but instead is {type(x)}"
@@ -749,10 +738,6 @@ def dividev(x:list, c) -> list:
   return result
 
 dividev([2, 10, 20], 2)  #[1.0, 5.0, 10.0]
-
-##Step 3.
-
-This one is move challenging. I would like the mean vector from a matrix. As reminder, a matrix is a list of vectors. So add all the vectors up then divide each element by the length of the matrix. Please use `addv` and `dividev` in your function body.
 
 def meanv(matrix: list) -> list:
     assert isinstance(matrix, list), f"matrix must be a list but instead is {type(x)}"
@@ -772,7 +757,7 @@ def sent2vec(sentence: str, nlp) -> list:
   for i in range(len(doc)):
     token = doc[i]
     if token.is_alpha and not token.is_stop:
-      vec = get_vec(token.text)
+      vec = token.vector.tolist()
       matrix.append(vec)
   result = [0.0]*300
   if len(matrix) != 0:
