@@ -764,3 +764,14 @@ def sent2vec(sentence: str, nlp) -> list:
     result = meanv(matrix)
   return result
 
+def tokens2vec(tokens: list, stop=True) -> list:
+  matrix = []
+  for token in tokens:
+    if stop and token.is_stop: continue  #skip over stop words
+    vec = token.vector.tolist()
+    matrix.append(vec)
+  result = [0.0]*300  #use this if matrix is empty - all stop words
+  if len(matrix) > 0:
+    result = meanv(matrix)
+  return result
+
