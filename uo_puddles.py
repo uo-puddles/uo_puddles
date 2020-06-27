@@ -680,4 +680,101 @@ def robust_bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:
     result_list.append(p_tuple)
   return result_list
 
+#embedding stuff
+import spacy
+spacy.prefer_gpu()  #True if have GPU turned on, False if you just want to run normally
+
+python -m spacy download en_core_web_md
+
+import en_core_web_md
+nlp = en_core_web_md.load()  #Brings in preset vocabulary taken from the web
+
+def word2vec(s:str) -> list:
+    return nlp.vocab[s].vector.tolist()
+
+def subtractv(x:list, y:list) -> list:
+  assert isinstance(x, list), f"x must be a list but instead is {type(x)}"
+  assert isinstance(y, list), f"y must be a list but instead is {type(y)}"
+  assert len(x) == len(y), f"x and y must be the same length"
+
+  #result = [(c1 - c2) for c1, c2 in zip(x, y)]  #one-line compact version - called a list comprehension
+
+  result = []
+  for i in range(len(x)):
+    c1 = x[i]
+    c2 = y[i]
+    result.append(c1-c2)
+
+  return result
+
+subtractv([5, 10, 20],[1, 2, 3])  #[4, 8, 17]
+
+##Step 1.
+
+Please define addv. Use subtractv as a template.
+
+def addv(x:list, y:list) -> list:
+  assert isinstance(x, list), f"x must be a list but instead is {type(x)}"
+  assert isinstance(y, list), f"y must be a list but instead is {type(y)}"
+  assert len(x) == len(y), f"x and y must be the same length"
+
+  #result = [c1 + c2 for c1, c2 in zip(x, y)]  #one-line compact version
+
+  result = []
+  for i in range(len(x)):
+    c1 = x[i]
+    c2 = y[i]
+    result.append(c1+c2)
+
+  return result
+
+addv([5, 10, 20],[1, 2, 3])  #[6, 12, 23]
+
+##Step 2.
+
+Please define dividev. This function takes a list and a number and divides every element of the list by the number.
+
+def dividev(x:list, c) -> list:
+  assert isinstance(x, list), f"x must be a list but instead is {type(x)}"
+  assert isinstance(c, int) or isinstance(c, float), f"c must be an int or a float but instead is {type(c)}"
+
+  #result = [v/c for v in x]  #one-line compact version
+
+  result = []
+  for i in range(len(x)):
+    v = x[i]
+    result.append(v/c) #division produces a float
+
+  return result
+
+dividev([2, 10, 20], 2)  #[1.0, 5.0, 10.0]
+
+##Step 3.
+
+This one is move challenging. I would like the mean vector from a matrix. As reminder, a matrix is a list of vectors. So add all the vectors up then divide each element by the length of the matrix. Please use `addv` and `dividev` in your function body.
+
+def meanv(matrix: list) -> list:
+    assert isinstance(matrix, list), f"matrix must be a list but instead is {type(x)}"
+    assert len(matrix) >= 1, f'matrix must have at least one row'
+
+    #Python transpose: sumv = [sum(col) for col in zip(*matrix)]
+
+    sumv = matrix[0]  #use first row as starting point in "reduction" style
+    for row in matrix[1:]:   #make sure start at row index 1 and not 0
+      sumv = addv(sumv, row)
+    mean = dividev(sumv, len(matrix))
+    return mean
+
+def sent2vec(sentence: str) -> list:
+  matrix = []
+  doc = nlp(sentence.lower())
+  for i in range(len(doc)):
+    token = doc[i]
+    if token.is_alpha and not token.is_stop:
+      vec = get_vec(token.text)
+      matrix.append(vec)
+  result = [0.0]*300
+  if len(matrix) != 0:
+    result = meanv(matrix)
+  return result
 
