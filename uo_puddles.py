@@ -737,8 +737,6 @@ def dividev(x:list, c) -> list:
 
   return result
 
-dividev([2, 10, 20], 2)  #[1.0, 5.0, 10.0]
-
 def meanv(matrix: list) -> list:
     assert isinstance(matrix, list), f"matrix must be a list but instead is {type(x)}"
     assert len(matrix) >= 1, f'matrix must have at least one row'
