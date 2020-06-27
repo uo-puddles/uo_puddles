@@ -681,15 +681,16 @@ def robust_bayes_tester(testing_table:dframe, evidence_bag:dict, training_table:
   return result_list
 
 #embedding stuff
+'''
 import spacy
 spacy.prefer_gpu()  #True if have GPU turned on, False if you just want to run normally
 
-python -m spacy download en_core_web_md
+python -m spacy download en_core_web_md  #this fails to load
 
 import en_core_web_md
 nlp = en_core_web_md.load()  #Brings in preset vocabulary taken from the web
-
-def word2vec(s:str) -> list:
+'''
+def word2vec(s:str, nlp) -> list:
     return nlp.vocab[s].vector.tolist()
 
 def subtractv(x:list, y:list) -> list:
@@ -765,7 +766,7 @@ def meanv(matrix: list) -> list:
     mean = dividev(sumv, len(matrix))
     return mean
 
-def sent2vec(sentence: str) -> list:
+def sent2vec(sentence: str, nlp) -> list:
   matrix = []
   doc = nlp(sentence.lower())
   for i in range(len(doc)):
