@@ -817,7 +817,7 @@ def build_sentence_table(book_dictionary:dict):
     for i,s in enumerate(sentences):
       out.update(progress(i, len(sentences)))  #shows progress bar
       tokens = [t for t in s if t.is_alpha or t.is_digit or t.is_punct]
-      vec = up.tokens2vec(tokens)  #averages across all non-stop token vectors
+      vec = tokens2vec(tokens)  #averages across all non-stop token vectors
       cleaned_sentence = ' '.join([t.text for t in tokens])
       ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
   nlp.max_length = old_m  #reset to old value
