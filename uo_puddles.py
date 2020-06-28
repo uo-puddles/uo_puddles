@@ -823,7 +823,7 @@ def build_sentence_table(book_dictionary:dict, stop=True):
       cleaned_sentence = ' '.join([t.text for t in tokens])
       ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
   nlp.max_length = old_m  #reset to old value
-  return ordered_sentencesdf.dropna()  #don't include columns with NaN
+  return ordered_sentences.dropna()  #don't include columns with NaN
 
 def find_most_similar(s:str, sentence_table, stop=True) -> list:
   assert isinstance(s, str), f's should be a string but is insteady a {type(s)}'
