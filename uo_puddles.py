@@ -809,12 +809,12 @@ def build_sentence_table(book_dictionary:dict, stop=True):
   old_m = nlp.max_length
   nlp.max_length = m  #for safety
   ordered_sentences = pd.DataFrame(columns = ['text', 'title', 'embedding'])
-  for item in all_items:
+  for j,item in enumerate(all_items):
     title = item[0]
     raw = item[1]  #the string that contains the entire book
     doc = nlp(raw)  #split into sentences and tokens
     sentences = list(doc.sents)
-    print(title, len(sentences))
+    print(f'{j} of {len(all_items)}, {title}, {len(sentences)} sentences found')
     out = display(progress(0, len(sentences)), display_id=True)  #build new bar for each book
     for i,s in enumerate(sentences):
       out.update(progress(i, len(sentences)))  #shows progress bar
@@ -823,7 +823,7 @@ def build_sentence_table(book_dictionary:dict, stop=True):
       cleaned_sentence = ' '.join([t.text for t in tokens])
       ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
   nlp.max_length = old_m  #reset to old value
-  return ordered_sentences.dropna()  #don't include columns with NaN
+  return ordered_sentences.dropna()  #don't include rows with NaN
 
 def find_most_similar(s:str, sentence_table, stop=True) -> list:
   assert isinstance(s, str), f's should be a string but is insteady a {type(s)}'
