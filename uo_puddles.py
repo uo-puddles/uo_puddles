@@ -11,8 +11,10 @@ import math
 import spacy
 import en_core_web_md
 nlp = en_core_web_md.load()
-doc = nlp("This is a sentence.")
-print('testing', len(doc)
+
+def_nlp_test(s):
+      return nlp(s)
+      
       
 #======== Below is for week 8 and beyond
 
