@@ -12,7 +12,7 @@ import spacy
 import en_core_web_md
 nlp = en_core_web_md.load()
 
-def_nlp_test(s):
+def nlp_test(s):
       return nlp(s)
       
       
