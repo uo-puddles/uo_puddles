@@ -36,6 +36,20 @@ from matplotlib.pyplot import rcParams
 #%matplotlib inline
 rcParams['figure.figsize'] = 10,8
 
+#Used to show progress bar in loop
+from IPython.display import HTML, display
+import time
+def progress(value, max=100):
+    return HTML("""
+        <progress
+            value='{value}'
+            max='{max}',
+            style='width: 100%'
+        >
+            {value}
+        </progress>
+    """.format(value=value, max=max))
+
 def ann_build_model(n:int, layer_list: list, seed=1234, metrics='binary_accuracy'):
   assert isinstance(n, int), f'n is an int, the number of columns/features of each sample. Instead got {type(n)}'
   assert isinstance(layer_list, list) or isinstance(layer_list, tuple), f'layer_list is a list or tuple, the number of nodes per layer. Instead got {type(layer_list)}'
@@ -780,4 +794,32 @@ def tokens2vec(tokens: list, stop=True) -> list:
   if len(matrix) > 0:
     result = meanv(matrix)
   return result
+
+def build_sentence_table(book_dictionary:dict):
+  assert isinstance(book_dictionary, dict), f'book_dictionary not a dict but a {type(book_dictionary)}'
+  all_items = list(book_dictionary.items())
+  assert len(all_items) > 0, f'book_dictionary is empty'
+  assert all([len(i)==2 for i in all_items]), f'book_dictionary should have a key and single value, i.e., length of an item is 2'
+  assert all([isinstance(k, str) for k,v in all_items]), f'all keys must be a string: see key {k}'
+  assert all([isinstance(v, str) for k,v in all_items]), f'all values must be a string: see key {k}'
+
+  m = max([len(v)  for k,v in all_items])  #Number of characters in longest book
+  old_m = nlp.max_length
+  nlp.max_length = m  #for safety
+  ordered_sentences = pd.DataFrame(columns = ['text', 'title', 'embedding'])
+  for item in all_items:
+    title = item[0]
+    raw = item[1]  #the string that contains the entire book
+    doc = nlp(raw)  #split into sentences and tokens
+    sentences = list(doc.sents)
+    print(title, len(sentences))
+    out = display(progress(0, len(sentences)), display_id=True)  #build new bar for each book
+    for i,s in enumerate(sentences):
+      out.update(progress(i, len(sentences)))  #shows progress bar
+      tokens = [t for t in s if t.is_alpha or t.is_digit or t.is_punct]
+      vec = up.tokens2vec(tokens)  #averages across all non-stop token vectors
+      cleaned_sentence = ' '.join([t.text for t in tokens])
+      ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
+  nlp.max_length = old_m  #reset to old value
+  return ordered_sentences
 
