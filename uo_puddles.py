@@ -836,8 +836,7 @@ def find_most_similar(s:str, sentence_table, stop=True) -> list:
   the_text = sentence_table['text'].to_list()  #list of sentences
   the_titles = sentence_table['title'].to_list()  #list of titles
   the_embeddings = sentence_table['embedding'].to_list()  #list of embeddings as list of strings
-  #have to wrangle embeddings - come as list of '[3.4, 5.6, ...]'
-  real_embeddings = [json.loads(y) for y in the_embeddings]
+  real_embeddings = the_embeddings  #do editing at some point
 
   assert all([isinstance(x, str) for x in the_text]), 'the text column must be all strings'
   assert all([isinstance(x, str) for x in the_titles]), 'the titles column must be all strings'
