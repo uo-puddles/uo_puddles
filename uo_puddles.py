@@ -8,6 +8,8 @@ dframe = TypeVar('pd.core.frame.DataFrame')
 narray = TypeVar('numpy.ndarray')
 import math
 
+import json
+
 import spacy
 import en_core_web_md
 nlp = en_core_web_md.load()
@@ -795,7 +797,7 @@ def tokens2vec(tokens: list, stop=True) -> list:
     result = meanv(matrix)
   return result
 
-def build_sentence_table(book_dictionary:dict):
+def build_sentence_table(book_dictionary:dict, stop=True):
   assert isinstance(book_dictionary, dict), f'book_dictionary not a dict but a {type(book_dictionary)}'
   all_items = list(book_dictionary.items())
   assert len(all_items) > 0, f'book_dictionary is empty'
@@ -817,9 +819,41 @@ def build_sentence_table(book_dictionary:dict):
     for i,s in enumerate(sentences):
       out.update(progress(i, len(sentences)))  #shows progress bar
       tokens = [t for t in s if t.is_alpha or t.is_digit or t.is_punct]
-      vec = tokens2vec(tokens)  #averages across all non-stop token vectors
+      vec = tokens2vec(tokens, stop)  #averages across all non-stop token vectors
       cleaned_sentence = ' '.join([t.text for t in tokens])
       ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
   nlp.max_length = old_m  #reset to old value
-  return ordered_sentences
+  return ordered_sentencesdf.dropna()  #don't include columns with NaN
+
+def find_most_similar(s:str, sentence_table, stop=True) -> list:
+  assert isinstance(s, str), f's should be a string but is insteady a {type(s)}'
+  assert isinstance(sentence_table, pd.core.frame.DataFrame), f'sentence_table not a dframe but instead a {type(sentence_table)}'
+  columns = sentence_table.columns.to_list()
+  assert 'text' in columns, f'cannot find text in columns: {columns}'
+  assert 'title' in columns, f'cannot find title in columns: {columns}'
+  assert 'embedding' in columns, f'cannot find embedding in columns: {columns}'
+
+  the_text = sentence_table['text'].to_list()  #list of sentences
+  the_titles = sentence_table['title'].to_list()  #list of titles
+  the_embeddings = sentence_table['embedding'].to_list()  #list of embeddings as list of strings
+  #have to wrangle embeddings - come as list of '[3.4, 5.6, ...]'
+  real_embeddings = [json.loads(y) for y in the_embeddings]
+
+  assert all([isinstance(x, str) for x in the_text]), 'the text column must be all strings'
+  assert all([isinstance(x, str) for x in the_titles]), 'the titles column must be all strings'
+  assert all([isinstance(x, list) for x in real_embeddings]), 'the embedding column must be all lists'
+  assert all([len(x)==300 for x in real_embeddings]), 'an embedding value must be a list of length 300'
+  assert all([isinstance(f, float) for em in real_embeddings for f in em]), 'an embedding should be a list of floats'
+
+  target = nlp(s.lower())
+  tokens = [t for t in target if (t.is_alpha or t.is_digit or t.is_punct) and (not (stop and t.is_stop))]
+  vec = tokens2vec(tokens, stop) if tokens else [0.0]*300
+  similarity_list = []
+  out = display(progress(0, len(real_embeddings)), display_id=True)
+  for i,v in enumerate(real_embeddings):
+    out.update(progress(i, len(real_embeddings)))  #shows progress bar
+    d = euclidean_distance(vec,v)
+    similarity_list.append([i,d, the_text[i], the_titles[i]])
+  sim_sorted = sorted(similarity_list, key=lambda p: p[1])
+  return sim_sorted
 
