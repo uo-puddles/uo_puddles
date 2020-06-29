@@ -260,6 +260,43 @@ def bayes_gothic_gen(evidence:list, evidence_bag:dframe, training_table:dframe, 
   the_min = min(results, key=lambda pair: pair[1])[1]  #shift so smallest is 0
   return [[a,r+abs(the_min)]    for a,r in results]
 
+def naive_bayes(evidence:list, evidence_bag:dframe, training_table:dframe, categorical_column:str, laplace:float=1.0) -> tuple:
+  assert isinstance(evidence, list), f'evidence not a list but instead a {type(evidence)}'
+  assert all([isinstance(item, str) for item in evidence]), f'evidence must be list of strings (not spacy tokens)'
+  assert isinstance(evidence_bag, pd.core.frame.DataFrame), f'evidence_bag not a dframe but instead a {type(evidence_bag)}'
+  assert isinstance(training_table, pd.core.frame.DataFrame), f'training_table not a dataframe but instead a {type(training_table)}'
+  assert categorical_column in training_table, f'categorical_column {categorical_column} is not found in training_table'
+
+  category_list = sorted(training_table[categorical_column].unique().tolist())
+  word_list = evidence_bag.index.values.tolist()
+  label_list = training_table[categorical_column].tolist()
+  evidence = list(set(evidence))  #remove duplicates
+
+  counts = []
+  probs = []
+  for category in category_list:
+    ct = label_list.count(category)
+    counts.append(ct)
+    probs.append(ct/len(label_list))
+
+  #now have counts and probs for all classes
+
+  results = []
+  for i, category in enumerate(category_list):
+    prods = [math.log(probs[i])]  #P(author)
+    for ei in evidence:
+      if ei not in word_list:
+        #did not see word in training set
+        the_value =  1/(counts[i] + len(evidence_bag))
+      else:
+        value = evidence_bag.loc[ei, category]
+        the_value = ((value+laplace)/(counts[i] + laplace*len(evidence_bag)))
+      prods.append(math.log(the_value))
+  
+    results.append((category, sum(prods)))
+  the_min = min(results, key=lambda pair: pair[1])[1]  #shift so smallest is 0
+  return [[a,r+abs(the_min)]    for a,r in results]
+
 #uses logs, can handle any number of authors/classes, returns value in slightly different way
 def bayes_by_author(evidence:list, evidence_bag, author_dict, laplace:float=1.0) -> tuple:
   import math
@@ -883,11 +920,11 @@ def build_word_table(books:dict):
   nlp.max_length = m
   out = display(progress(0, len(all_titles)), display_id=True)
   for i,title in enumerate(all_titles):
-    out.update(progress(i, len(all_titles)))  #shows progress bar
     doc = nlp(books[title].lower()) #parse the entire book into tokens
     for token in doc:
       if  token.is_alpha and not token.is_stop:
         word_table = update_word_table(word_table, token.text, title)
+    out.update(progress(i, len(all_titles)))  #shows progress bar
 
   word_table = word_table.infer_objects()
   #word_table = word_table.astype(int)  #all columns
@@ -907,9 +944,9 @@ def most_similar_word(word_table, target_word:str) -> list:
   word_list = word_table.index.to_list()
   out = display(progress(0, len(word_list)), display_id=True)
   for i,word in enumerate(word_list):
-    out.update(progress(i, len(word_list)))  #shows progress bar
     vec = list(nlp.vocab.get_vector(word))
     d = euclidean_distance(target_vec, vec)
     distance_list.append([word, d])
+    out.update(progress(i, len(word_list)))  #shows progress bar
   ordered = sorted(distance_list, key=lambda p: p[1])
   return ordered
