@@ -888,7 +888,7 @@ def build_word_table(books:dict):
 
   word_table = word_table.infer_objects()
   #word_table = word_table.astype(int)  #all columns
-  #word_table = word_table.astype({'word':str}})  #now just word column
+  word_table = word_table.astype({'word':str}})  #now just word column
 
   sorted_word_table = word_table.sort_values(by=['word'])
   sorted_word_table = sorted_word_table.reset_index(drop=True)
