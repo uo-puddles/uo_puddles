@@ -875,6 +875,8 @@ def update_word_table(word_table, word:str, category:str):
   return word_table
 
 def build_word_table(books:dict):
+  assert isinstance(books, dict), f'books not a dictionary but instead a {type(books)}'
+
   all_titles = list(books.keys())
   word_table = pd.DataFrame(columns=['word'] + all_titles)
   m = max([len(v)  for v in books.values()])  #Number of characters in longest book
@@ -895,3 +897,16 @@ def build_word_table(books:dict):
   sorted_word_table = sorted_word_table.set_index('word')  #set the word column to be the table index
 
   return sorted_word_table
+
+def most_similar_word(word_table, target_word:str) -> list:
+  assert isinstance(word_table, pd.core.frame.DataFrame), f'word_table not a dframe but instead a {type(word_table)}'
+
+  target_vec = list(nlp.vocab.get_vector(target_word))
+  distance_list = []
+  word_list = word_table.index.to_list()
+  for word in word_list:
+    vec = list(nlp.vocab.get_vector(word))
+    d = euclidean_distance(target_vec, vec)
+    distance_list.append([word, d])
+  ordered = sorted(distance_list, key=lambda p: p[1])
+  return ordered
