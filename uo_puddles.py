@@ -10,7 +10,8 @@ import math
 
 import json
 
-import spacy
+import spacy, os
+os.system('python -m spacy download en_core_web_md')
 import en_core_web_md
 nlp = en_core_web_md.load()
 
