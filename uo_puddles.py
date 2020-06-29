@@ -881,8 +881,9 @@ def build_word_table(books:dict):
   word_table = pd.DataFrame(columns=['word'] + all_titles)
   m = max([len(v)  for v in books.values()])  #Number of characters in longest book
   nlp.max_length = m
-
-  for title in all_titles:
+  out = display(progress(0, len(all_titles)), display_id=True)
+  for i,title in enumerate(all_titles):
+    out.update(progress(i, len(all_titles)))  #shows progress bar
     doc = nlp(books[title].lower()) #parse the entire book into tokens
     for token in doc:
       if  token.is_alpha and not token.is_stop:
@@ -904,7 +905,9 @@ def most_similar_word(word_table, target_word:str) -> list:
   target_vec = list(nlp.vocab.get_vector(target_word))
   distance_list = []
   word_list = word_table.index.to_list()
-  for word in word_list:
+  out = display(progress(0, len(word_list)), display_id=True)
+  for i,word in enumerate(word_list):
+    out.update(progress(i, len(word_list)))  #shows progress bar
     vec = list(nlp.vocab.get_vector(word))
     d = euclidean_distance(target_vec, vec)
     distance_list.append([word, d])
