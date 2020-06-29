@@ -857,3 +857,41 @@ def find_most_similar(s:str, sentence_table, stop=True) -> list:
   sim_sorted = sorted(similarity_list, key=lambda p: p[1])
   return sim_sorted
 
+def update_word_table(word_table, word:str, category:str):
+  assert category in word_table.columns.tolist(), f'{category} not found in {word_table.columns.tolist()}'
+  assert 'word' in word_table.columns.tolist(), f'word not found in {word_table.columns.tolist()}'
+
+  word_list = word_table['word'].tolist()
+  real_word = word if type(word) == str else word.text
+
+  if real_word in word_list:
+    j = word_list.index(real_word)
+  else:
+    j = len(word_table)
+    word_table.loc[j] = [real_word] + [0]*(len(word_table.columns)-1)
+
+  word_table.loc[j, category] += 1
+
+  return word_table
+
+def build_word_table(books:dict):
+  all_titles = list(books.keys())
+  word_table = pd.DataFrame(columns=['word'] + all_titles)
+  m = max([len(v)  for v in books.values()])  #Number of characters in longest book
+  nlp.max_length = m
+
+  for title in all_titles:
+    doc = nlp(books[title].lower()) #parse the entire book into tokens
+    for token in doc:
+      if  token.is_alpha and not token.is_stop:
+        word_table = update_word_table(word_table, token.text, title)
+
+  word_table = word_table.infer_objects()
+  #word_table = word_table.astype(int)  #all columns
+  #word_table = word_table.astype({'word':str}})  #now just word column
+
+  sorted_word_table = word_table.sort_values(by=['word'])
+  sorted_word_table = sorted_word_table.reset_index(drop=True)
+  sorted_word_table = sorted_word_table.set_index('word')  #set the word column to be the table index
+
+  return sorted_word_table
