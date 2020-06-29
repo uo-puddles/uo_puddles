@@ -815,14 +815,14 @@ def build_sentence_table(book_dictionary:dict, stop=True):
     raw = item[1]  #the string that contains the entire book
     doc = nlp(raw)  #split into sentences and tokens
     sentences = list(doc.sents)
-    print(f'{j} of {len(all_items)}, {title}, {len(sentences)} sentences found')
+    print(f'{j+1} of {len(all_items)}, {title}, {len(sentences)} sentences found')
     out = display(progress(0, len(sentences)), display_id=True)  #build new bar for each book
     for i,s in enumerate(sentences):
       out.update(progress(i, len(sentences)))  #shows progress bar
       tokens = [t for t in s if t.is_alpha or t.is_digit or t.is_punct]
       vec = tokens2vec(tokens, stop)  #averages across all non-stop token vectors
       cleaned_sentence = ' '.join([t.text for t in tokens])
-      ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row
+      if cleaned_sentence: ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row if non-empty
   nlp.max_length = old_m  #reset to old value
   return ordered_sentences.dropna()  #don't include rows with NaN
 
