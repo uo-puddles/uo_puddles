@@ -953,11 +953,13 @@ def most_similar_word(word_table, target_word:str) -> list:
   distance_list = []
   word_list = word_table.index.to_list()
   out = display(progress(0, len(word_list)), display_id=True)
+  cut = int(len(word_list)*.1)
   for i,word in enumerate(word_list):
     vec = list(nlp.vocab.get_vector(word))
     d = euclidean_distance(target_vec, vec)
     distance_list.append([word, d])
-    out.update(progress(i+1, len(word_list)))  #shows progress bar
-    time.sleep(0.02)
+    if i%cut==0:
+      out.update(progress(i+1, len(word_list)))  #shows progress bar
+      time.sleep(0.02)
   ordered = sorted(distance_list, key=lambda p: p[1])
   return ordered
