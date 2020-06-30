@@ -888,11 +888,13 @@ def find_most_similar(s:str, sentence_table, stop=True) -> list:
   vec = tokens2vec(tokens, stop) if tokens else [0.0]*300
   similarity_list = []
   out = display(progress(0, len(real_embeddings)), display_id=True)
+  cut = int(len(real_embeddings)*.2)
   for i,v in enumerate(real_embeddings):
     d = euclidean_distance(vec,v)
     similarity_list.append([i,d, the_text[i], the_titles[i]])
-    out.update(progress(i+1, len(real_embeddings)))  #shows progress bar
-    time.sleep(0.02)
+    if i%cut == 0:
+      out.update(progress(i+1, len(real_embeddings)))  #shows progress bar
+      time.sleep(0.02)
   sim_sorted = sorted(similarity_list, key=lambda p: p[1])
   return sim_sorted
 
@@ -917,12 +919,13 @@ def build_word_table(books:dict):
   assert isinstance(books, dict), f'books not a dictionary but instead a {type(books)}'
 
   all_titles = list(books.keys())
+  n = len(all_titles)
   word_table = pd.DataFrame(columns=['word'] + all_titles)
   m = max([len(v)  for v in books.values()])  #Number of characters in longest book
   nlp.max_length = m
-  out = display(progress(0, len(all_titles)), display_id=True)
+  out = display(progress(0, n), display_id=True)
   for i,title in enumerate(all_titles):
-    print(f'Processing {title} ({len(books[title])} characters)')
+    print(f'({i+1} of {n}) {Processing {title} ({len(books[title])} characters)')
     doc = nlp(books[title].lower()) #parse the entire book into tokens
     for token in doc:
       if  token.is_alpha and not token.is_stop:
