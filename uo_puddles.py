@@ -923,15 +923,18 @@ def build_word_table(books:dict):
   word_table = pd.DataFrame(columns=['word'] + all_titles)
   m = max([len(v)  for v in books.values()])  #Number of characters in longest book
   nlp.max_length = m
-  out = display(progress(0, n), display_id=True)
+
   for i,title in enumerate(all_titles):
     print(f'({i+1} of {n}) Processing {title} ({len(books[title])} characters)')
     doc = nlp(books[title].lower()) #parse the entire book into tokens
-    for token in doc:
+    out = display(progress(0, len(doc), display_id=True)
+    cut = int(len(doc)*.1)
+    for j,token in enumerate(doc):
       if  token.is_alpha and not token.is_stop:
         word_table = update_word_table(word_table, token.text, title)
-    out.update(progress(i+1, len(all_titles)))  #shows progress bar
-    time.sleep(0.02)
+      if j%cut==0:
+        out.update(progress(j+1, len(doc)))  #shows progress bar
+        time.sleep(0.02)
 
   word_table = word_table.infer_objects()
   #word_table = word_table.astype(int)  #all columns
