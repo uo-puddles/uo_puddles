@@ -855,11 +855,12 @@ def build_sentence_table(book_dictionary:dict, stop=True):
     print(f'{j+1} of {len(all_items)}, {title}, {len(sentences)} sentences found')
     out = display(progress(0, len(sentences)), display_id=True)  #build new bar for each book
     for i,s in enumerate(sentences):
-      out.update(progress(i, len(sentences)))  #shows progress bar
       tokens = [t for t in s if t.is_alpha or t.is_digit or t.is_punct]
       vec = tokens2vec(tokens, stop)  #averages across all non-stop token vectors
       cleaned_sentence = ' '.join([t.text for t in tokens])
       if cleaned_sentence: ordered_sentences.loc[len(ordered_sentences)] = [cleaned_sentence, title, vec]  #append new row if non-empty
+      out.update(progress(i+1, len(sentences)))  #shows progress bar
+      time.sleep(0.02)
   nlp.max_length = old_m  #reset to old value
   return ordered_sentences.dropna()  #don't include rows with NaN
 
@@ -888,9 +889,10 @@ def find_most_similar(s:str, sentence_table, stop=True) -> list:
   similarity_list = []
   out = display(progress(0, len(real_embeddings)), display_id=True)
   for i,v in enumerate(real_embeddings):
-    out.update(progress(i, len(real_embeddings)))  #shows progress bar
     d = euclidean_distance(vec,v)
     similarity_list.append([i,d, the_text[i], the_titles[i]])
+    out.update(progress(i+1, len(real_embeddings)))  #shows progress bar
+    time.sleep(0.02)
   sim_sorted = sorted(similarity_list, key=lambda p: p[1])
   return sim_sorted
 
@@ -920,7 +922,7 @@ def build_word_table(books:dict):
   nlp.max_length = m
   out = display(progress(0, len(all_titles)), display_id=True)
   for i,title in enumerate(all_titles):
-    print(f'Processing {title}')
+    print(f'Processing {title} ({len(books[title])} characters)'
     doc = nlp(books[title].lower()) #parse the entire book into tokens
     for token in doc:
       if  token.is_alpha and not token.is_stop:
@@ -949,6 +951,7 @@ def most_similar_word(word_table, target_word:str) -> list:
     vec = list(nlp.vocab.get_vector(word))
     d = euclidean_distance(target_vec, vec)
     distance_list.append([word, d])
-    out.update(progress(i, len(word_list)))  #shows progress bar
+    out.update(progress(i+1, len(word_list)))  #shows progress bar
+    time.sleep(0.02)
   ordered = sorted(distance_list, key=lambda p: p[1])
   return ordered
