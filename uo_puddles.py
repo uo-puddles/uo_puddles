@@ -920,11 +920,13 @@ def build_word_table(books:dict):
   nlp.max_length = m
   out = display(progress(0, len(all_titles)), display_id=True)
   for i,title in enumerate(all_titles):
+    print(f'Processing {title}')
     doc = nlp(books[title].lower()) #parse the entire book into tokens
     for token in doc:
       if  token.is_alpha and not token.is_stop:
         word_table = update_word_table(word_table, token.text, title)
-    out.update(progress(i, len(all_titles)))  #shows progress bar
+    out.update(progress(i+1, len(all_titles)))  #shows progress bar
+    time.sleep(0.02)
 
   word_table = word_table.infer_objects()
   #word_table = word_table.astype(int)  #all columns
