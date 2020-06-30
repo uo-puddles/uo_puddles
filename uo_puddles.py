@@ -927,7 +927,7 @@ def build_word_table(books:dict):
   for i,title in enumerate(all_titles):
     print(f'({i+1} of {n}) Processing {title} ({len(books[title])} characters)')
     doc = nlp(books[title].lower()) #parse the entire book into tokens
-    out = display(progress(0, len(doc), display_id=True)
+    out = display(progress(0, len(doc), display_id=True))
     cut = int(len(doc)*.1)
     for j,token in enumerate(doc):
       if  token.is_alpha and not token.is_stop:
