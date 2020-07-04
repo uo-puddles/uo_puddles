@@ -18,7 +18,7 @@ nlp = en_core_web_md.load()
 def nlp_test(s):
       return nlp(s)
       
-      
+    
 #======== Below is for week 8 and beyond
 
 import warnings
