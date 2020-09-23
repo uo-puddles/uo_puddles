@@ -10,6 +10,194 @@ import math
 
 import json
 
+#===================  fall 20  ===============================
+
+#============ chapter 4
+
+def survival_by_column(table, column, bins=20):
+  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 1]
+  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 0]
+  col_stacked = [col_pos, col_neg]
+
+  import matplotlib.pyplot as plt
+  plt.rcParams["figure.figsize"] = (15,8)
+  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
+  if len(titanic_table[column].unique()) > 10:
+    std = titanic_table.std(axis = 0, skipna = True)[column]
+    mean = table[column].mean()
+    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+    sig3_plus =  mean+3*std
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  else:
+    plt.xticks(table[column].unique().tolist())
+    #for label in ax.xaxis.get_xticklabels():
+    #  label.set_horizontalalignment('center')
+  plt.xlabel(column)
+  plt.ylabel('Number of passengers')
+  plt.title(f'Survival by {column}')
+  plt.legend()
+  plt.show()
+
+#============== chapter 5
+
+from sklearn.cluster import KMeans
+import numpy as np
+
+def ohe(table, column):
+  unique_list = table[column].unique().tolist()
+  ohe_cols = [f'ohe_{column}_{val}' for val in unique_list]
+  col_matrix = [[0]*len(table) for c in ohe_cols]
+  for i in range(len(table)):
+    col_val = table.loc[i,column]
+    if not isinstance(col_val, str):
+      continue
+    for j in range(len(ohe_cols)):
+      if col_val in ohe_cols[j]:
+        col_matrix[j][i] = 1
+        break
+    else:
+      print(f'problem with row {i} and {ohe_cols}')
+
+  ohe_dict = {}
+  for k,c in enumerate(ohe_cols):
+    ohe_dict[c] = col_matrix[k]
+    
+  return ohe_dict
+
+#KMeans(n_clusters=8, *, init='k-means++', n_init=10, max_iter=300, tol=0.0001, precompute_distances='deprecated', verbose=0, random_state=None, copy_x=True, n_jobs='deprecated', algorithm='auto')
+
+def kmeans(k, table, rstate=1234):
+  init = 'k-means++'  #be smart about choosing centers
+  n_init = 10  #retry with different centers
+  max_iter = 300
+  tol = 1e-4
+  verbose=1
+  n_jobs = -1  #use all processors
+  kmeans = KMeans(n_clusters=k, random_state=rstate, init=init, n_init=n_init, max_iter=max_iter,
+                  tol=tol, verbose=verbose, n_jobs=n_jobs)
+  
+  numeric_table = table.copy()
+  dt = table.dtypes
+  ohe_dict = {}  #remember the original columns used for ohe
+  for pair in dt.items():
+    if pair[1] == np.dtype('O') and len(numeric_table[pair[0]].unique()) <= 10:
+      new_cols = ohe(numeric_table, pair[0])
+      ohe_dict[pair[0]] = new_cols
+      for key in new_cols.keys():
+        numeric_table[key] = new_cols[key]
+      numeric_table = numeric_table.drop(columns=[pair[0]])
+    elif pair[1] == np.dtype('O') and len(numeric_table[pair[0]].unique()) > 10:
+      numeric_table = numeric_table.drop(columns=[pair[0]])
+    elif pair[1] == np.dtype('float64'):
+      numeric_table[pair[0]] = numeric_table[pair[0]]/numeric_table[pair[0]].max()  #normalize
+    elif pair[1] == np.dtype('int64') and len(numeric_table[pair[0]].unique()) > 2:
+      numeric_table[pair[0]] = numeric_table[pair[0]]/numeric_table[pair[0]].max()  #normalize
+  numeric_table = numeric_table.dropna(axis=0)  #remove rows with NaN value
+  model = kmeans.fit(numeric_table)
+  columns = numeric_table.columns.to_list()
+  labels = model.labels_.tolist()
+
+  result_table = pd.DataFrame(columns=columns+['Total'])  #10 x n_cols
+
+  total_cols = len(result_table.columns.to_list())
+  for i,center in enumerate(model.cluster_centers_):
+    row_dict = dict(zip(columns,center))
+    row_dict['Total'] = labels.count(i)
+    assert len(row_dict)==total_cols, f'col mismatch {row_dict} and {result_table.columns.to_list()}'
+    result_table = result_table.append(row_dict, ignore_index=True)
+
+  #un-normalize and binaryize
+  for pair in dt.items():  #use original table column types
+    if pair[1] == np.dtype('float64'):
+      result_table[pair[0]] = round(result_table[pair[0]] * table[pair[0]].max(),2)
+    elif pair[1] == np.dtype('int64') and len(numeric_table[pair[0]].unique()) > 2:
+      #print(round(result_table[pair[0]] * table[pair[0]].max(),2))
+      s = result_table[pair[0]] * table[pair[0]].max()  #a series
+      s = s.round(0) #a series
+      s = s.astype(int)
+      result_table[pair[0]] = s
+    elif pair[1] == np.dtype('int64') and len(numeric_table[pair[0]].unique()) <= 2:
+      result_table[pair[0]] = [0 if result_table.loc[i, pair[0]] <= .5 else 1 for i in range(len(result_table))]
+
+
+  #un-ohe
+  drop_cols = []
+  for i in range(len(result_table)):
+    for original_col in ohe_dict.keys():
+      ohe_cols = list(ohe_dict[original_col].keys())  #ohe_Gender_Male, etc.
+      ohe_vals = result_table.loc[i, ohe_cols].to_list()
+      m = ohe_vals.index(max(ohe_vals))
+      name = ohe_cols[m]
+      j = name.rfind('_')
+      orig_val = name[j+1:]
+      result_table.loc[i, original_col] = orig_val
+      drop_cols += ohe_cols
+  result_table = result_table.drop(columns=drop_cols)
+  tot_col = result_table.pop('Total') # remove column Total and store it in df1
+  result_table['Total'] = tot_col # add b series as a 'new' column.
+
+  return result_table
+
+#============= chapter 5
+
+def matrix_add(matrix):
+  assert isinstance(matrix, list), f'matrix must be a list but instead is a {type(matrix)}'
+  assert len(matrix), 'matrix must have at least one row'
+  assert isinstance(matrix[0], list), f'matrix must be a list of lists but instead is a list of {type(matrix[0])}'
+
+  new_vec = matrix[0][:]  #get copy of first row
+  n = len(new_vec)
+  for i in range(1,len(matrix)):
+    row = matrix[i]
+    for j in range(n):
+      new_vec[j] += row[j]
+  return new_vec
+
+def row_divide(row, x):
+  assert isinstance(row, list), f'row must be a list but instead is a {type(row)}'
+
+  new_vec = [v/x for v in row]
+  return new_vec
+
+def rows_to_matrix(table, list_of_rows):
+  matrix = table.loc[list_of_rows].values.tolist()
+  return matrix
+
+#============= Pima midterm 1
+
+def outcome_by_column(table, column, bins=20):
+  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Outcome'] == 1]
+  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Outcome'] == 0]
+  col_stacked = [col_pos, col_neg]
+
+  import matplotlib.pyplot as plt
+  plt.rcParams["figure.figsize"] = (15,8)
+  result = plt.hist(col_stacked, bins, stacked=True, label=['Onset within 5 years', 'No onset'])
+  if len(table[column].unique()) > 10:
+    std = table.std(axis = 0, skipna = True)[column]
+    mean = table[column].mean()
+    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+    sig3_plus =  mean+3*std
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  else:
+    plt.xticks(table[column].unique().tolist())
+    #for label in ax.xaxis.get_xticklabels():
+    #  label.set_horizontalalignment('center')
+  plt.xlabel(column)
+  plt.ylabel('Number of patients')
+  plt.title(f'Onset by {column}')
+  plt.legend()
+  plt.show()
+
+
 import spacy, os
 os.system('python -m spacy download en_core_web_md')
 import en_core_web_md
@@ -52,6 +240,9 @@ def progress(value, max=100):
             {value}
         </progress>
     """.format(value=value, max=max))
+
+
+#from spring 20
 
 def ann_build_model(n:int, layer_list: list, seed=1234, metrics='binary_accuracy'):
   assert isinstance(n, int), f'n is an int, the number of columns/features of each sample. Instead got {type(n)}'
