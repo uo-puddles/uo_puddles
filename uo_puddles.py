@@ -22,7 +22,7 @@ def survival_by_column(table, column, bins=20):
   import matplotlib.pyplot as plt
   plt.rcParams["figure.figsize"] = (15,8)
   result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if len(titanic_table[column].unique()) > 10:
+  if len(table[column].unique()) > 10:
     std = table.std(axis = 0, skipna = True)[column]
     mean = table[column].mean()
     sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
