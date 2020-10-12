@@ -14,9 +14,46 @@ import json
 
 #============ chapter 4
 
-def survival_by_column(table, column, bins=20):
+def survival_by_column(table, column, bins=40):
+  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
+  
   col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 1]
   col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 0]
+  col_stacked = [col_pos, col_neg]
+
+  import matplotlib.pyplot as plt
+  plt.rcParams["figure.figsize"] = (15,8)
+  unique = len(table[column].unique())
+  if unique <= 20:
+    bins = 2*unique - 1
+  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
+  if unique > 10:
+    std = table.std(axis = 0, skipna = True)[column]
+    mean = table[column].mean()
+    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+    sig3_plus =  mean+3*std
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  else:
+    plt.xticks(table[column].unique().tolist())
+    #for label in ax.xaxis.get_xticklabels():
+    #  label.set_horizontalalignment('center')
+  plt.xlabel(column)
+  plt.ylabel('Number of passengers')
+  plt.title(f'Survival by {column}')
+  plt.legend()
+  plt.show()
+
+def survival_by_gender_class(table, a_class):
+  assert a_class in table['Class'].to_list(), f'unrecognized class: {a_class}. Check spelling and case.'
+
+  column = 'Gender'
+  bins = 3
+  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Class'] == a_class and table.loc[i, 'Survived'] == 1]
+  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Class'] == a_class and table.loc[i, 'Survived'] == 0]
   col_stacked = [col_pos, col_neg]
 
   import matplotlib.pyplot as plt
@@ -38,9 +75,94 @@ def survival_by_column(table, column, bins=20):
     #  label.set_horizontalalignment('center')
   plt.xlabel(column)
   plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column}')
+  plt.title(f'Survival by {column} cross Class={a_class}')
   plt.legend()
   plt.show()
+
+
+#survival_by_gender_class(titanic_table, 'C3')
+
+
+def survival_by_gender_age(table, age_range):
+  assert isinstance(age_range, list), f'{age_range} not a list.'
+  assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
+  assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
+  assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
+
+  column = 'Gender'
+  bins = 3
+  lower = age_range[0]
+  upper = age_range[1]
+  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 1]
+  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 0]
+  col_stacked = [col_pos, col_neg]
+
+  import matplotlib.pyplot as plt
+  plt.rcParams["figure.figsize"] = (15,8)
+  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
+  if len(table[column].unique()) > 10:
+    std = table.std(axis = 0, skipna = True)[column]
+    mean = table[column].mean()
+    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+    sig3_plus =  mean+3*std
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  else:
+    plt.xticks(table[column].unique().tolist())
+    #for label in ax.xaxis.get_xticklabels():
+    #  label.set_horizontalalignment('center')
+  plt.xlabel(column)
+  plt.ylabel('Number of passengers')
+  plt.title(f'Survival by {column} cross Age={age_range}')
+  plt.legend()
+  plt.show()
+
+
+#survival_by_gender_age(titanic_table, [0,10])
+
+
+def survival_by_class_age(table, age_range):
+  assert isinstance(age_range, list), f'{age_range} not a list.'
+  assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
+  assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
+  assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
+
+  column = 'Class'
+  bins = 7
+  lower = age_range[0]
+  upper = age_range[1]
+  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 1]
+  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 0]
+  col_stacked = [col_pos, col_neg]
+
+  import matplotlib.pyplot as plt
+  plt.rcParams["figure.figsize"] = (15,8)
+  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
+  if len(table[column].unique()) > 10:
+    std = table.std(axis = 0, skipna = True)[column]
+    mean = table[column].mean()
+    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+    sig3_plus =  mean+3*std
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  else:
+    plt.xticks(table[column].unique().tolist())
+    #for label in ax.xaxis.get_xticklabels():
+    #  label.set_horizontalalignment('center')
+  plt.xlabel(column)
+  plt.ylabel('Number of passengers')
+  plt.title(f'Survival by {column} cross Age={age_range}')
+  plt.legend()
+  plt.show()
+
+
+#survival_by_class_age(titanic_table, [30,40])
 
 #============== chapter 5
 
