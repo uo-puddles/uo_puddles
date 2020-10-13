@@ -23,7 +23,7 @@ def survival_by_column_age(table, column, age_range=None, bins=40):
     assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
     assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
   else:
-    age_range = [0, max(table['Age'].to_list()]
+    age_range = [0, max(table['Age'].to_list())]
   
   unique = len(table[column].unique())
   if unique <= 20:
