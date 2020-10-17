@@ -14,7 +14,54 @@ import json
 
 #============ chapter 4
 
-def survival_by_column_age(table, column, age_range=None, bins=40):
+def survival_by_gender_class_value(table, column_value=['Class', 'C1']):
+  assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
+  assert isinstance(column_value, list), f'{column_value} not a list.'
+  assert len(column_value)==2, f'{column_value} must be a list of 2 ints.'
+  column = column_value[0]
+  value = column_value[1]
+  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
+  assert value in table[column].unique().tolist(), f'{value} not found in {column} - check spelling and case.'
+
+  tt_df = table[table[column] == value]
+
+  plt.rcParams["figure.figsize"] = (15,8)
+  df_plot = tt_df.groupby(['Survived', 'Gender']).size().reset_index().pivot(columns='Survived', index='Gender', values=0)
+  df_plot.plot.bar(stacked=True, title=f'Gender by {column_value}', grid=True, #logy=True,
+                 xlabel='Gender', ylabel='Count')
+
+def survival_by_column_age(table, column, age_range=None):
+  assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
+  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
+  if age_range:
+    assert isinstance(age_range, list), f'{age_range} not a list.'
+    assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
+    assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
+    assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
+  else:
+    age_range = [0, max(table['Age'].to_list())]
+  plt.close()
+  '''
+  std = table.std(axis = 0, skipna = True)[column]
+  mean = table[column].mean()
+  sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
+  sig3_plus =  mean+3*std
+  plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+  plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
+  plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
+  plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+  plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
+  '''
+  low = age_range[0]
+  high = age_range[1]
+  tt_df = table[table['Age'] >= low]
+  tt_df = tt_df[tt_df['Age'] <= high] 
+  df_plot = tt_df.groupby(['Survived', column]).size().reset_index().pivot(columns='Survived', index=column, values=0)
+  df_plot.plot.bar(stacked=True, title=f'{column} by ages {age_range}', grid=True, #logy=True,
+                 xlabel=column, ylabel='Count')
+
+
+def survival_by_column_age_old(table, column, age_range=None, bins=40):
   assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
   assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
   if age_range:
@@ -56,7 +103,7 @@ def survival_by_column_age(table, column, age_range=None, bins=40):
   plt.legend()
   plt.show()
 
-def survival_by_column(table, column, bins=40):
+def survival_by_column_old(table, column, bins=40):
   assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
   
   col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 1]
@@ -89,7 +136,7 @@ def survival_by_column(table, column, bins=40):
   plt.legend()
   plt.show()
 
-def survival_by_gender_class(table, a_class):
+def survival_by_gender_class_old(table, a_class):
   assert a_class in table['Class'].to_list(), f'unrecognized class: {a_class}. Check spelling and case.'
 
   column = 'Gender'
@@ -125,7 +172,7 @@ def survival_by_gender_class(table, a_class):
 #survival_by_gender_class(titanic_table, 'C3')
 
 
-def survival_by_gender_age(table, age_range):
+def survival_by_gender_age_old(table, age_range):
   assert isinstance(age_range, list), f'{age_range} not a list.'
   assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
   assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
@@ -166,7 +213,7 @@ def survival_by_gender_age(table, age_range):
 #survival_by_gender_age(titanic_table, [0,10])
 
 
-def survival_by_class_age(table, age_range):
+def survival_by_class_age_old(table, age_range):
   assert isinstance(age_range, list), f'{age_range} not a list.'
   assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
   assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
