@@ -405,7 +405,7 @@ def outcome_by_column(table, column, bins=20):
   plt.show()
 
 #uncomment when get to it
-
+'''
 import spacy, os
 os.system('python -m spacy download en_core_web_md')
 import en_core_web_md
@@ -413,7 +413,7 @@ nlp = en_core_web_md.load()
 
 def nlp_test(s):
       return nlp(s)
-
+'''
     
 #======== Below is for week 8 and beyond
 
