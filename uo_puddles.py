@@ -13,7 +13,46 @@ import json
 #===================  fall 20  ===============================
 
 #============ chapter 4
+def outcome_by_column_age(table, column, age_range=None):
+  assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
+  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
+  if age_range:
+    assert isinstance(age_range, list), f'{age_range} not a list.'
+    assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
+    assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
+    assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
+  else:
+    age_range = [min(table['Age'].to_list()), max(table['Age'].to_list())]
+  plt.close()
 
+  low = age_range[0]
+  high = age_range[1]
+  tt_df = table[table['Age'] >= low]
+  tt_df = tt_df[tt_df['Age'] <= high] 
+  df_plot = tt_df.groupby(['Outcome', column]).size().reset_index().pivot(columns='Outcome', index=column, values=0)
+  df_plot.plot.bar(stacked=True, title=f'{column} by ages {age_range}', grid=True, #logy=True,
+                 xlabel=column, ylabel='Count')
+  
+  
+def outcome_by_column_age(table, column, age_range=None):
+  assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
+  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
+  if age_range:
+    assert isinstance(age_range, list), f'{age_range} not a list.'
+    assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
+    assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
+    assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
+  else:
+    age_range = [min(table['Age'].to_list()), max(table['Age'].to_list())]
+  plt.close()
+
+  low = age_range[0]
+  high = age_range[1]
+  tt_df = table[table['Age'] >= low]
+  tt_df = tt_df[tt_df['Age'] <= high] 
+  df_plot = tt_df.groupby(['Outcome', column]).size().reset_index().pivot(columns='Outcome', index=column, values=0)
+  df_plot.plot.bar(stacked=True, title=f'{column} by ages {age_range}', grid=True, #logy=True,
+                 xlabel=column, ylabel='Count')
 def survival_by_column_column_value(table, target_column, column_value):
   assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
   assert target_column in table.columns, f'unrecognized target_column: {target_column}. Check spelling and case.'
