@@ -287,8 +287,66 @@ def old_survival_by_class_age_old(table, age_range):
   plt.legend()
   plt.show()
 
+def knn(table, target_list,  k):
 
-#============== chapter 5
+  distance_record = []
+  n = len(table)
+
+  for i in range(n):
+    crowd_row = table.loc[i].to_list()
+    crowd_number_list = crowd_row[:-1]
+    choice = crowd_row[-1]
+    d = euclidean_distance(target_list, crowd_number_list)
+    distance_record += [[d,choice]]
+
+  sorted_record = sorted(distance_record)
+  expert_list = sorted_record[:k]
+
+  return expert_list
+
+def count_choices(result_list, choices=['C1', 'C2', 'C3', 'Crew']):
+  n = len(choices)
+  k = len(result_list)
+
+  for i in range(n):
+    choice = choices[i]
+    counter = 0
+
+    for j in range(k):
+      pair = result_list[j]
+      c = pair[1]
+      if c == choice:
+        counter += 1
+    print(f'{choice}: {counter}')
+
+def knn_accuracy(training_table, testing_table, k, choices=[]):
+  n = len(testing_table)
+  record = []
+  correct = 0
+  for i in range(n):
+    test_row = testing_table.loc[i].to_list()
+    choice = test_row[-1]
+    number_list = test_row[:-1]
+    result = knn(training_table, number_list, 11)
+    votes = [c for d,c in result]
+    vote_counts = []
+
+    for c in choices:
+      count = votes.count(c)
+      vote_counts += [count]
+
+    m = max(vote_counts)
+    j = vote_counts.index(m)
+    winner = choices[j]
+    if winner == choice:
+      correct += 1
+    record += [(winner, choice)]
+
+  heat_map(record, choices)
+
+  return correct/n
+
+#============== end fall 20
 
 from sklearn.cluster import KMeans
 import numpy as np
@@ -812,7 +870,7 @@ def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_colum
   return sorted(distance_list, key=lambda pair: pair[1])
 
 #fix this up at some point - hardwired to skip first 2 items in a row
-def knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, sim_type='euclidean') -> int:
+def old_knn(target_vector:list, crowd_matrix:list,  labels:list, k:int, sim_type='euclidean') -> int:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_matrix, list), f'crowd_matrix not a list but instead a {type(crowd_matrix)}'
 
