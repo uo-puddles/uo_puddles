@@ -654,6 +654,10 @@ def heat_map(zipped, label_list):
   fig, ax = plt.subplots(figsize=(10, 10))
   ax.imshow(case_list)
   ax.grid(False)
+  title = ''
+  for i,c in enumerate(label_list):
+    title += f'{i}={c} '
+  ax.set_title(title)
   ax.set_xlabel('Predicted outputs', fontsize=32, color='black')
   ax.set_ylabel('Actual outputs', fontsize=32, color='black')
   ax.xaxis.set(ticks=range(len(label_list)))
