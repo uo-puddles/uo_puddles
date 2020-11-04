@@ -12,6 +12,22 @@ import json
 
 #===================  fall 20  ===============================
 
+#============ chapter 7
+def update_word_table(word_table, word:str, author:str):
+
+  word_list = word_table['word'].tolist()
+  real_word = word if type(word) == str else word.text
+
+  if real_word in word_list:
+    j = word_list.index(real_word)
+  else:
+    j = len(word_table)
+    word_table.loc[j] = [real_word] + [0]*(len(word_table.columns)-1)
+
+  word_table.loc[j, author] += 1
+
+  return word_table
+
 #============ chapter 4
 def outcome_by_column_age(table, column, age_range=None):
   assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
