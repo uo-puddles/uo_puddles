@@ -47,10 +47,10 @@ def outcome_by_column_age(table, column, age_range=None):
   tt_df = tt_df[tt_df['Age'] <= high] 
   df_plot = tt_df.groupby(['Outcome', column]).size().reset_index().pivot(columns='Outcome', index=column, values=0)
   df_plot.plot.bar(stacked=True, title=f'{column} by ages {age_range}', grid=True, #logy=True,
-                 xlabel=column, ylabel='Count')
+                 xlabel=column, ylabel='Count', figsize=(20,10))
   
   
-def outcome_by_column_age(table, column, age_range=None):
+def old_outcome_by_column_age(table, column, age_range=None):
   assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
   assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
   if age_range:
@@ -69,6 +69,7 @@ def outcome_by_column_age(table, column, age_range=None):
   df_plot = tt_df.groupby(['Outcome', column]).size().reset_index().pivot(columns='Outcome', index=column, values=0)
   df_plot.plot.bar(stacked=True, title=f'{column} by ages {age_range}', grid=True, #logy=True,
                  xlabel=column, ylabel='Count')
+  
 def survival_by_column_column_value(table, target_column, column_value):
   assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
   assert target_column in table.columns, f'unrecognized target_column: {target_column}. Check spelling and case.'
