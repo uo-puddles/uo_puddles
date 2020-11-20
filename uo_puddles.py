@@ -535,13 +535,13 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 #%tensorflow_version 2.x
 import tensorflow as tf
-from tensorflow.python.keras.layers import Dense, Activation, Dropout
-from tensorflow.python.keras import Sequential
+from tensorflow.keras.layers import Dense, Activation, Dropout
+from tensorflow.keras import Sequential
 from tensorflow.keras.utils import plot_model
 
 from sklearn.model_selection import GridSearchCV
 #from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
-from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 
 #libraries to help visualize training results later
 import matplotlib.pyplot as plt
