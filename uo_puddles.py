@@ -596,11 +596,11 @@ def ann_train(model, x_train:list, y_train:list, epochs:int,  batch_size=1):
   assert isinstance(y_train, list), f'y_train is a list, the list of samples. Instead got {type(y_train)}'
   assert len(x_train) == len(y_train), f'x_train must be the same length as y_train'
   assert isinstance(epochs, int), f'epochs is an int, the number of epochs to repeat. Instead got {type(epochs)}'
-  assert model.get_input_shape_at(0)[1] == len(x_train[0]), f'model expecting sample size of {model.get_input_shape_at(0)[1]} but saw {len(x_train[0])}'
+  #assert model.get_input_shape_at(0)[1] == len(x_train[0]), f'model expecting sample size of {model.get_input_shape_at(0)[1]} but saw {len(x_train[0])}'
 
   if epochs == 1:
     print('Warning: epochs is 1, typically too small.')
-  print('Starting training ...')
+  print('Start training ...')
   xnp = np.array(x_train)
   ynp = np.array(y_train)
   training = model.fit(xnp, ynp, epochs=epochs, batch_size=batch_size, verbose=0)  #3 minutes
