@@ -347,7 +347,8 @@ def knn_accuracy(training_table, testing_table, k, choices=[]):
     result = knn(training_table, number_list, 11)
     votes = [c for d,c in result]
     vote_counts = []
-
+    
+    choices = testing_table[testing_table.columns[-1]].unique().tolist()
     for c in choices:
       count = votes.count(c)
       vote_counts += [count]
