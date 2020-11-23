@@ -12,6 +12,11 @@ import json
 
 #===================  fall 20  ===============================
 
+def nan_columns(table):
+  nan_values = table.isna()
+  nan_columns = nan_values.any()
+  return table.columns[nan_columns].tolist()
+
 #============ chapter 7
 def update_word_table(word_table, word:str, author:str):
 
