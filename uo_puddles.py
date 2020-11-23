@@ -867,18 +867,21 @@ def euclidean_distance(vect1:list ,vect2:list) -> float:
   assert isinstance(vect1, list), f'vect1 is not a list but a {type(vect1)}'
   assert isinstance(vect2, list), f'vect2 is not a list but a {type(vect2)}'
   assert len(vect1) == len(vect2), f"Mismatching length for euclidean vectors: {len(vect1)} and {len(vect2)}"
-  '''
+  
   sum = 0
   for i in range(len(vect1)):
       sum += (vect1[i] - vect2[i])**2
       
   #could put assert here on result   
   return sum**.5  # I claim that this square root is not needed in K-means - see why?
+
   '''
+  #getting error with this - not worth messing with: https://stackoverflow.com/questions/36637428/typeerror-ufunc-subtract-did-not-contain-a-loop-with-signature-matching-types
   a = np.array(vect1)
   b = np.array(vect2)
   return norm(a-b)
-
+  '''
+  
 def ordered_distances_table(target_vector:list, crowd_table:dframe, answer_column:str, dfunc=euclidean_distance) -> list:
   assert isinstance(target_vector, list), f'target_vector not a list but instead a {type(target_vector)}'
   assert isinstance(crowd_table, pd.core.frame.DataFrame), f'crowd_table not a dataframe but instead a {type(crowd_table)}'
