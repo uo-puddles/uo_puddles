@@ -17,6 +17,14 @@ def nan_columns(table):
   nan_columns = nan_values.any()
   return table.columns[nan_columns].tolist()
 
+def norm_a_list(number_list):
+  assert isinstance(number_list, list)
+  assert all([not isinstance(x, str) for x in number_list]), f'number_list contains a string value'
+  the_min = float(min(number_list))
+  d = float(max(number_list)-min(number_list))
+  norm = [(float(i)-the_min)/d for i in number_list]
+  return norm
+
 #============ chapter 7
 def update_word_table(word_table, word:str, author:str):
 
