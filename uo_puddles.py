@@ -131,192 +131,9 @@ def survival_by_column_age(table, column, age_range=None):
                  xlabel=column, ylabel='Count')
 
 
-def old_survival_by_column_age(table, column, age_range=None, bins=40):
-  assert isinstance(table, pd.core.frame.DataFrame), f'table is not a dataframe but instead a {type(table)}'
-  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
-  if age_range:
-    assert isinstance(age_range, list), f'{age_range} not a list.'
-    assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
-    assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
-    assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
-  else:
-    age_range = [0, max(table['Age'].to_list())]
-  
-  unique = len(table[column].unique())
-  if unique <= 20:
-    bins = 2*unique - 1
-  lower = age_range[0]
-  upper = age_range[1]
-  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 1]
-  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 0]
-  col_stacked = [col_pos, col_neg]
+######## KNN
 
-  plt.rcParams["figure.figsize"] = (15,8)
-  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if unique > 10:
-    std = table.std(axis = 0, skipna = True)[column]
-    mean = table[column].mean()
-    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
-    sig3_plus =  mean+3*std
-    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
-    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
-    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
-  else:
-    plt.xticks(table[column].unique().tolist())
-    #for label in ax.xaxis.get_xticklabels():
-    #  label.set_horizontalalignment('center')
-  plt.xlabel(column)
-  plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column} cross Age={age_range}')
-  plt.legend()
-  plt.show()
-
-def old_survival_by_column_old(table, column, bins=40):
-  assert column in table.columns, f'unrecognized column: {column}. Check spelling and case.'
-  
-  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 1]
-  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Survived'] == 0]
-  col_stacked = [col_pos, col_neg]
-
-  import matplotlib.pyplot as plt
-  plt.rcParams["figure.figsize"] = (15,8)
-  unique = len(table[column].unique())
-  if unique <= 20:
-    bins = 2*unique - 1
-  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if unique > 10:
-    std = table.std(axis = 0, skipna = True)[column]
-    mean = table[column].mean()
-    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
-    sig3_plus =  mean+3*std
-    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
-    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
-    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
-  else:
-    plt.xticks(table[column].unique().tolist())
-    #for label in ax.xaxis.get_xticklabels():
-    #  label.set_horizontalalignment('center')
-  plt.xlabel(column)
-  plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column}')
-  plt.legend()
-  plt.show()
-
-def old_survival_by_gender_class_old(table, a_class):
-  assert a_class in table['Class'].to_list(), f'unrecognized class: {a_class}. Check spelling and case.'
-
-  column = 'Gender'
-  bins = 3
-  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Class'] == a_class and table.loc[i, 'Survived'] == 1]
-  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Class'] == a_class and table.loc[i, 'Survived'] == 0]
-  col_stacked = [col_pos, col_neg]
-
-  import matplotlib.pyplot as plt
-  plt.rcParams["figure.figsize"] = (15,8)
-  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if len(table[column].unique()) > 10:
-    std = table.std(axis = 0, skipna = True)[column]
-    mean = table[column].mean()
-    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
-    sig3_plus =  mean+3*std
-    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
-    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
-    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
-  else:
-    plt.xticks(table[column].unique().tolist())
-    #for label in ax.xaxis.get_xticklabels():
-    #  label.set_horizontalalignment('center')
-  plt.xlabel(column)
-  plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column} cross Class={a_class}')
-  plt.legend()
-  plt.show()
-
-
-
-
-def old_survival_by_gender_age_old(table, age_range):
-  assert isinstance(age_range, list), f'{age_range} not a list.'
-  assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
-  assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
-  assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
-
-  column = 'Gender'
-  bins = 3
-  lower = age_range[0]
-  upper = age_range[1]
-  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 1]
-  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 0]
-  col_stacked = [col_pos, col_neg]
-
-  import matplotlib.pyplot as plt
-  plt.rcParams["figure.figsize"] = (15,8)
-  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if len(table[column].unique()) > 10:
-    std = table.std(axis = 0, skipna = True)[column]
-    mean = table[column].mean()
-    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
-    sig3_plus =  mean+3*std
-    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
-    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
-    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
-  else:
-    plt.xticks(table[column].unique().tolist())
-    #for label in ax.xaxis.get_xticklabels():
-    #  label.set_horizontalalignment('center')
-  plt.xlabel(column)
-  plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column} cross Age={age_range}')
-  plt.legend()
-  plt.show()
-
-
-
-def old_survival_by_class_age_old(table, age_range):
-  assert isinstance(age_range, list), f'{age_range} not a list.'
-  assert len(age_range)==2, f'{age_range} must be a list of 2 ints.'
-  assert isinstance(age_range[0], int), f'{age_range[0]} not an int.'
-  assert isinstance(age_range[1], int), f'{age_range[1]} not an int.'
-
-  column = 'Class'
-  bins = 7
-  lower = age_range[0]
-  upper = age_range[1]
-  col_pos = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 1]
-  col_neg = [table.loc[i, column] for i in range(len(table)) if table.loc[i, 'Age'] >= lower and table.loc[i, 'Age'] <= upper and table.loc[i, 'Survived'] == 0]
-  col_stacked = [col_pos, col_neg]
-
-  import matplotlib.pyplot as plt
-  plt.rcParams["figure.figsize"] = (15,8)
-  result = plt.hist(col_stacked, bins, stacked=True, label=['Survived', 'Perished'])
-  if len(table[column].unique()) > 10:
-    std = table.std(axis = 0, skipna = True)[column]
-    mean = table[column].mean()
-    sig3_minus = table[column].min() if (mean-3*std)<=table[column].min() else mean-3*std
-    sig3_plus =  mean+3*std
-    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_minus, color='g', linestyle='dashed', linewidth=1)
-    plt.axvline(mean, color='k', linestyle='solid', linewidth=1)
-    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
-    plt.axvline(sig3_plus, color='g', linestyle='dashed', linewidth=1)
-  else:
-    plt.xticks(table[column].unique().tolist())
-    #for label in ax.xaxis.get_xticklabels():
-    #  label.set_horizontalalignment('center')
-  plt.xlabel(column)
-  plt.ylabel('Number of passengers')
-  plt.title(f'Survival by {column} cross Age={age_range}')
-  plt.legend()
-  plt.show()
-
+#assumes table has target value as last column, uses euclidean distance
 def knn(table, target_list,  k):
 
   distance_record = []
@@ -324,32 +141,36 @@ def knn(table, target_list,  k):
 
   for i in range(n):
     crowd_row = table.loc[i].to_list()
-    crowd_number_list = crowd_row[:-1]
-    choice = crowd_row[-1]
+    crowd_number_list = crowd_row[:-1]  #strip off last column
+    choice = crowd_row[-1]  #grab last column
     d = euclidean_distance(target_list, crowd_number_list)
     distance_record += [[d,choice]]
 
   sorted_record = sorted(distance_record)
+  return sorted_record
+
+def knn_try_k(sorted_record, k):
   expert_list = sorted_record[:k]
+  winner = get_knn_winner(expert_list)
+  return winner
 
-  return expert_list
+def get_knn_winner(expert_list):
+  #[ [d,choice], ... ]
+  counts = {}
+  for d,c in expert_list:
+    if c not in {}:
+      counts[c] = 0
+    counts[c] += 1
+    
+  m = max(counts.values())
+  j = counts.values().find(m)
+  return counts.keys()[j]
 
-def count_choices(result_list, choices=['C1', 'C2', 'C3', 'Crew']):
-  n = len(choices)
-  k = len(result_list)
 
-  for i in range(n):
-    choice = choices[i]
-    counter = 0
-
-    for j in range(k):
-      pair = result_list[j]
-      c = pair[1]
-      if c == choice:
-        counter += 1
-    print(f'{choice}: {counter}')
-
-def knn_accuracy(training_table, testing_table, k, choices=[]):
+def knn_accuracy(training_table, testing_table, k):
+  training_choices = training_table[training_table.columns[-1]].unique().tolist()
+  testing_choices = testing_table[testing_table.columns[-1]].unique().tolist()
+  choices = list(set(training_choices + testing_choices))
   n = len(testing_table)
   record = []
   correct = 0
@@ -357,11 +178,10 @@ def knn_accuracy(training_table, testing_table, k, choices=[]):
     test_row = testing_table.loc[i].to_list()
     choice = test_row[-1]
     number_list = test_row[:-1]
-    result = knn(training_table, number_list, 11)
+    result = knn(training_table, number_list, k)
     votes = [c for d,c in result]
     vote_counts = []
     
-    choices = testing_table[testing_table.columns[-1]].unique().tolist()
     for c in choices:
       count = votes.count(c)
       vote_counts += [count]
@@ -376,6 +196,23 @@ def knn_accuracy(training_table, testing_table, k, choices=[]):
   heat_map(record, choices)
 
   return correct/n
+
+
+def count_choices(result_list):
+  choices = set([c for 
+  n = len(choices)
+  k = len(result_list)
+
+  for i in range(n):
+    choice = choices[i]
+    counter = 0
+
+    for j in range(k):
+      pair = result_list[j]
+      c = pair[1]
+      if c == choice:
+        counter += 1
+    print(f'{choice}: {counter}')
 
 #============== end fall 20
 
